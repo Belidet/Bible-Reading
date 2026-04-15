@@ -3,6 +3,12 @@
 // Start Date: April 13, 2026
 // Day 1: April 13, Day 2: April 14, Day 3: April 15 (Today)
 
+// ===== User PIN Codes =====
+const USER_PINS = {
+    user1: "2721",  // Belidet's PIN
+    user2: "2324"   // Ephi's PIN
+};
+
 // ===== Vercel Blob Cloud Storage Integration =====
 const API_BASE_URL = window.location.origin + '/api';
 
@@ -13,6 +19,7 @@ const CLOUD_SAVE_DEBOUNCE = 2000;
 let currentUser = null;
 let otherUser = null;
 let viewingOtherUser = false;
+let pendingUser = null;
 
 // Progress storage
 let userProgress = {
@@ -342,13 +349,79 @@ function saveAllProgress() {
     saveProgressToCloud('user2', userProgress.user2.completedDays);
 }
 
-// ===== User Management =====
-function showUserSelector() {
-    const selector = document.getElementById('user-selector');
-    if (selector) selector.style.display = 'flex';
+// ===== PIN Authentication Functions =====
+function showPinModal(userId) {
+    pendingUser = userId;
+    const userName = userId === 'user1' ? userProgress.user1.name : userProgress.user2.name;
+    document.getElementById('pin-user-name').textContent = userName;
+    document.getElementById('pin-modal').style.display = 'flex';
+    document.getElementById('pin-error').style.display = 'none';
+    
+    // Clear all PIN inputs
+    for (let i = 1; i <= 4; i++) {
+        const input = document.getElementById(`pin-${i}`);
+        input.value = '';
+    }
+    
+    // Focus on first input
+    setTimeout(() => {
+        document.getElementById('pin-1').focus();
+    }, 100);
+    
+    // Add input event listeners for auto-advance
+    for (let i = 1; i <= 4; i++) {
+        const input = document.getElementById(`pin-${i}`);
+        input.removeEventListener('input', handlePinInput);
+        input.addEventListener('input', handlePinInput);
+    }
 }
 
-function selectUser(userId) {
+function handlePinInput(e) {
+    const input = e.target;
+    const id = parseInt(input.id.split('-')[1]);
+    
+    if (input.value.length === 1) {
+        if (id < 4) {
+            document.getElementById(`pin-${id + 1}`).focus();
+        } else {
+            // Auto-submit when all 4 digits are entered
+            document.getElementById('pin-4').blur();
+            setTimeout(() => verifyPin(), 100);
+        }
+    }
+}
+
+function getEnteredPin() {
+    let pin = '';
+    for (let i = 1; i <= 4; i++) {
+        pin += document.getElementById(`pin-${i}`).value;
+    }
+    return pin;
+}
+
+function verifyPin() {
+    const enteredPin = getEnteredPin();
+    const correctPin = USER_PINS[pendingUser];
+    
+    if (enteredPin.length === 4 && enteredPin === correctPin) {
+        document.getElementById('pin-modal').style.display = 'none';
+        completeUserSelection(pendingUser);
+    } else {
+        document.getElementById('pin-error').style.display = 'block';
+        // Clear all PIN inputs
+        for (let i = 1; i <= 4; i++) {
+            document.getElementById(`pin-${i}`).value = '';
+        }
+        document.getElementById('pin-1').focus();
+    }
+}
+
+function cancelPinModal() {
+    document.getElementById('pin-modal').style.display = 'none';
+    pendingUser = null;
+}
+
+function completeUserSelection(userId) {
     currentUser = userId;
     viewingOtherUser = false;
     document.getElementById('user-selector').style.display = 'none';
@@ -363,6 +436,27 @@ function selectUser(userId) {
     }
     
     loadUserProgress();
+    showToast(`Welcome back, ${userId === 'user1' ? 'Belidet' : 'Ephi'}! ✝️`, "success");
+}
+
+function switchUser() {
+    // Clear any viewing state
+    viewingOtherUser = false;
+    currentUser = null;
+    document.getElementById('app-container').style.display = 'none';
+    document.getElementById('user-selector').style.display = 'flex';
+    document.getElementById('viewing-banner').style.display = 'none';
+    showToast("Please select a user", "info");
+}
+
+// ===== User Management =====
+function showUserSelector() {
+    const selector = document.getElementById('user-selector');
+    if (selector) selector.style.display = 'flex';
+}
+
+function selectUser(userId) {
+    showPinModal(userId);
 }
 
 function viewOtherUser() {
@@ -428,7 +522,7 @@ function toggleDay(dayNum) {
         updateStatistics(false);
         
         if (day.completed) {
-            showToast(`Day ${dayNum} marked as read!`, "success");
+            showToast(`Day ${dayNum} marked as read! 📖`, "success");
         } else {
             showToast(`Day ${dayNum} marked as unread`, "info");
         }
@@ -938,10 +1032,25 @@ document.addEventListener('DOMContentLoaded', () => {
     prePopulateProgress();
     showUserSelector();
     
+    // User selection event listeners
     document.getElementById('select-user1')?.addEventListener('click', () => selectUser('user1'));
     document.getElementById('select-user2')?.addEventListener('click', () => selectUser('user2'));
+    
+    // PIN modal event listeners
+    document.getElementById('pin-submit')?.addEventListener('click', verifyPin);
+    document.getElementById('pin-cancel')?.addEventListener('click', cancelPinModal);
+    
+    // Close modal when clicking outside (optional)
+    document.getElementById('pin-modal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('pin-modal')) {
+            cancelPinModal();
+        }
+    });
+    
+    // Main app event listeners
     document.getElementById('view-other-btn')?.addEventListener('click', viewOtherUser);
     document.getElementById('back-to-self-btn')?.addEventListener('click', switchBackToSelf);
+    document.getElementById('switch-user-btn')?.addEventListener('click', switchUser);
     
     initCalendarNavigation();
     setupNotifications();
