@@ -568,4 +568,389 @@ function formatPassage(ntPassages, otPassages) {
                 if (passage.startChapter === passage.endChapter) {
                     html += `<span class="passage-chapter">${passage.startChapter}</span>`;
                 } else {
-                    html += `<span class="passage-chapter">${passage.start
+                    html += `<span class="passage-chapter">${passage.startChapter}-${passage.endChapter}</span>`;
+                }
+            }
+            if (idx < ntPassages.length - 1) {
+                html += `<span class="passage-separator">, </span>`;
+            }
+        });
+        html += `</div>`;
+    }
+    
+    if (otPassages && otPassages.length > 0) {
+        html += `<div class="passage-ot">`;
+        html += `<span class="testament-label OT">OT</span>`;
+        html += `<div class="ot-passages">`;
+        
+        otPassages.forEach((p, idx) => {
+            if (p.startChapter === p.endChapter) {
+                html += `<span class="passage-book">${p.book}</span> <span class="passage-chapter">${p.startChapter}</span>`;
+            } else {
+                html += `<span class="passage-book">${p.book}</span> <span class="passage-chapter">${p.startChapter}-${p.endChapter}</span>`;
+            }
+            if (idx < otPassages.length - 1) {
+                html += `<span class="passage-separator">, </span>`;
+            }
+        });
+        html += `</div></div>`;
+    }
+    
+    return html;
+}
+
+function formatDate(date) {
+    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+function getDaySuffix(day) {
+    if (day >= 11 && day <= 13) return 'th';
+    switch (day % 10) {
+        case 1: return 'st';
+        case 2: return 'nd';
+        case 3: return 'rd';
+        default: return 'th';
+    }
+}
+
+function renderReadingList(viewing = false) {
+    const container = document.getElementById('reading-list');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    readingPlan.forEach(day => {
+        const passageHTML = formatPassage(day.ntPassages, day.otPassages);
+        const dateText = formatDate(day.date);
+        const daySuffix = getDaySuffix(day.day);
+        
+        const dayCard = document.createElement('div');
+        dayCard.className = `day-card ${day.completed ? 'completed' : ''} ${day.isCurrent ? 'current' : ''}`;
+        dayCard.setAttribute('data-day', day.day);
+        
+        dayCard.innerHTML = `
+            <div class="card-left">
+                <div class="day-badge">
+                    <span class="day-number-large">${day.day}</span>
+                    <span class="day-suffix">${daySuffix}</span>
+                </div>
+                <div class="date-badge">
+                    <span class="date-icon">📅</span>
+                    <span class="date-text">${dateText}</span>
+                </div>
+            </div>
+            <div class="card-middle">
+                <div class="passage-container">
+                    ${passageHTML}
+                </div>
+                <div class="reading-meta">
+                    ${day.isCurrent ? '<span class="current-badge">Current Reading</span>' : ''}
+                </div>
+            </div>
+            <div class="card-right">
+                <label class="checkbox-wrapper ${viewing ? 'disabled' : ''}">
+                    <input type="checkbox" ${day.completed ? 'checked' : ''} data-day="${day.day}" ${viewing ? 'disabled' : ''}>
+                    <span class="checkbox-custom">
+                        <svg class="checkbox-icon" viewBox="0 0 24 24">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                        </svg>
+                    </span>
+                </label>
+                <div class="completion-status ${day.completed ? 'completed' : ''}">
+                    ${day.completed ? 'Read' : 'Mark Read'}
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(dayCard);
+    });
+    
+    if (!viewing) {
+        document.querySelectorAll('.checkbox-wrapper input:not([disabled])').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                e.stopPropagation();
+                const dayNum = parseInt(e.target.dataset.day);
+                toggleDay(dayNum);
+            });
+        });
+    }
+}
+
+let currentCalendarDate = new Date();
+
+function renderCalendar(viewing = false) {
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth();
+    
+    const monthDisplay = document.getElementById('month-year-display');
+    if (monthDisplay) {
+        monthDisplay.textContent = currentCalendarDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    }
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startingDayOfWeek = firstDay.getDay();
+    const totalDays = lastDay.getDate();
+    
+    const calendarDays = document.getElementById('calendar-days');
+    if (!calendarDays) return;
+    calendarDays.innerHTML = '';
+    
+    for (let i = 0; i < startingDayOfWeek; i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'calendar-day empty';
+        calendarDays.appendChild(emptyDay);
+    }
+    
+    const targetUser = viewing ? otherUser : currentUser;
+    const userCompletedDays = targetUser ? userProgress[targetUser]?.completedDays : [];
+    
+    for (let day = 1; day <= totalDays; day++) {
+        const date = new Date(year, month, day);
+        date.setHours(0, 0, 0, 0);
+        
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day';
+        
+        const readingDay = readingPlan.find(d => {
+            const dDate = new Date(d.date);
+            dDate.setHours(0, 0, 0, 0);
+            return dDate.getTime() === date.getTime();
+        });
+        
+        let dayContent = `<span class="day-number">${day}</span>`;
+        
+        if (readingDay) {
+            dayElement.classList.add('has-reading');
+            if (userCompletedDays && userCompletedDays.includes(readingDay.day)) {
+                dayElement.classList.add('completed-reading');
+            }
+            
+            const ntText = readingDay.ntPassages && readingDay.ntPassages.length > 0 
+                ? readingDay.ntPassages.map(p => {
+                    if (p.chapter) return `${p.book} ${p.chapter}`;
+                    if (p.startChapter && p.endChapter) return `${p.book} ${p.startChapter}-${p.endChapter}`;
+                    return '';
+                }).join(', ') 
+                : '';
+                
+            const otText = readingDay.otPassages.map(p => 
+                `${p.book} ${p.startChapter}${p.startChapter !== p.endChapter ? '-' + p.endChapter : ''}`
+            ).join(', ');
+                
+            dayElement.setAttribute('data-tooltip', `Day ${readingDay.day}: NT: ${ntText} | OT: ${otText}`);
+            dayContent += `<span class="reading-indicator"></span>`;
+        }
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (date.getTime() === today.getTime()) {
+            dayElement.classList.add('today');
+            dayContent += `<span class="today-indicator">Today</span>`;
+        }
+        
+        dayElement.innerHTML = dayContent;
+        calendarDays.appendChild(dayElement);
+    }
+}
+
+function updateTodayHighlight(viewing = false) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const todayReading = readingPlan.find(d => {
+        const dDate = new Date(d.date);
+        dDate.setHours(0, 0, 0, 0);
+        return dDate.getTime() === today.getTime();
+    });
+    
+    const highlightElement = document.getElementById('today-highlight');
+    if (!highlightElement) return;
+    
+    const targetUser = viewing ? otherUser : currentUser;
+    const isCompleted = todayReading && targetUser && 
+        userProgress[targetUser]?.completedDays.includes(todayReading.day);
+    
+    if (todayReading) {
+        const passageHTML = formatPassage(todayReading.ntPassages, todayReading.otPassages);
+        const dateText = today.toLocaleDateString('en-US', { 
+            weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+        });
+        
+        highlightElement.innerHTML = `
+            <div class="today-header">
+                <div class="today-icon">📖</div>
+                <div class="today-title-section">
+                    <span class="today-label">Today's Reading</span>
+                    <span class="today-full-date">${dateText}</span>
+                </div>
+            </div>
+            <div class="today-content">
+                <div class="today-passage-section">
+                    <div class="today-day">Day ${todayReading.day}</div>
+                    <div class="today-passage">${passageHTML}</div>
+                </div>
+                <button class="btn-mark-read ${isCompleted ? 'completed' : ''}" 
+                        data-day="${todayReading.day}" 
+                        ${isCompleted || viewing ? 'disabled' : ''}>
+                    <span class="btn-icon">${isCompleted ? '✓' : '◉'}</span>
+                    <span class="btn-text">${isCompleted ? 'Completed' : 'Mark as Read'}</span>
+                </button>
+            </div>
+        `;
+        
+        if (!viewing && !isCompleted) {
+            const markReadBtn = highlightElement.querySelector('.btn-mark-read');
+            if (markReadBtn) {
+                markReadBtn.addEventListener('click', () => toggleDay(todayReading.day));
+            }
+        }
+    } else {
+        const nextReading = readingPlan.find(d => {
+            const dDate = new Date(d.date);
+            dDate.setHours(0, 0, 0, 0);
+            return dDate >= today && !userProgress[targetUser]?.completedDays.includes(d.day);
+        });
+        
+        if (nextReading) {
+            const nextDate = new Date(nextReading.date);
+            const passageHTML = formatPassage(nextReading.ntPassages, nextReading.otPassages);
+            highlightElement.innerHTML = `
+                <div class="today-header">
+                    <div class="today-icon">📅</div>
+                    <div class="today-title-section">
+                        <span class="today-label">Next Reading</span>
+                        <span class="today-full-date">${nextDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
+                    </div>
+                </div>
+                <div class="today-content">
+                    <div class="today-passage-section">
+                        <div class="today-day">Day ${nextReading.day}</div>
+                        <div class="today-passage">${passageHTML}</div>
+                    </div>
+                    <div class="today-message">📖 Coming soon</div>
+                </div>
+            `;
+        } else {
+            highlightElement.innerHTML = `
+                <div class="today-header">
+                    <div class="today-icon">🎉</div>
+                    <div class="today-title-section">
+                        <span class="today-label">Congratulations!</span>
+                        <span class="today-full-date">${today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                    </div>
+                </div>
+                <div class="today-content">
+                    <div class="today-message">You've completed the entire Bible reading plan! 🎉</div>
+                </div>
+            `;
+        }
+    }
+}
+
+function initCalendarNavigation() {
+    const prevBtn = document.getElementById('prev-month');
+    const nextBtn = document.getElementById('next-month');
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+            renderCalendar(viewingOtherUser);
+        });
+    }
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+            renderCalendar(viewingOtherUser);
+        });
+    }
+}
+
+function setupNotifications() {
+    if ('Notification' in window && 'serviceWorker' in navigator) {
+        const banner = document.getElementById('notification-banner');
+        
+        if (Notification.permission === 'granted') {
+            banner.classList.add('hidden');
+            scheduleDailyNotification();
+        } else if (Notification.permission !== 'denied') {
+            banner.classList.remove('hidden');
+            
+            document.getElementById('enable-notifications').addEventListener('click', async () => {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    banner.classList.add('hidden');
+                    scheduleDailyNotification();
+                }
+            });
+        }
+    }
+}
+
+function scheduleDailyNotification() {
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+        navigator.serviceWorker.register('service-worker.js')
+            .then(registration => {
+                console.log('Service Worker registered');
+                
+                const now = new Date();
+                const notificationTime = new Date();
+                notificationTime.setHours(8, 0, 0, 0);
+                
+                if (now > notificationTime) {
+                    notificationTime.setDate(notificationTime.getDate() + 1);
+                }
+                
+                const timeUntilNotification = notificationTime - now;
+                
+                setTimeout(() => {
+                    registration.showNotification('Bible Reading - Daily Reminder', {
+                        body: 'Time for your daily Bible reading! 5 chapters today.',
+                        icon: 'icons/icon-192x192.png',
+                        badge: 'icons/icon-72x72.png',
+                        vibrate: [200, 100, 200],
+                        tag: 'daily-reading',
+                        renotify: true,
+                        actions: [
+                            { action: 'open', title: 'Open Reading' },
+                            { action: 'mark', title: 'Mark as Read' }
+                        ]
+                    });
+                    
+                    setInterval(() => {
+                        registration.showNotification('Bible Reading - Daily Reminder', {
+                            body: 'Time for your daily Bible reading! 5 chapters today.',
+                            icon: 'icons/icon-192x192.png',
+                            badge: 'icons/icon-72x72.png',
+                            vibrate: [200, 100, 200],
+                            tag: 'daily-reading',
+                            renotify: true
+                        });
+                    }, 24 * 60 * 60 * 1000);
+                }, timeUntilNotification);
+            })
+            .catch(error => {
+                console.error('Service Worker registration failed:', error);
+            });
+    }
+}
+
+// Initialize app
+document.addEventListener('DOMContentLoaded', () => {
+    prePopulateProgress();
+    showUserSelector();
+    
+    document.getElementById('select-user1')?.addEventListener('click', () => selectUser('user1'));
+    document.getElementById('select-user2')?.addEventListener('click', () => selectUser('user2'));
+    document.getElementById('view-other-btn')?.addEventListener('click', viewOtherUser);
+    document.getElementById('back-to-self-btn')?.addEventListener('click', switchBackToSelf);
+    
+    initCalendarNavigation();
+    setupNotifications();
+    
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('service-worker.js').catch(error => {
+                console.error('Service Worker registration failed:', error);
+            });
+        });
+    }
+});
