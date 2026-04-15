@@ -14,11 +14,20 @@ let currentUser = null;
 let otherUser = null;
 let viewingOtherUser = false;
 
+// User PIN credentials
+const userCredentials = {
+    user1: { pin: "2721", name: "Belidet" },
+    user2: { pin: "2324", name: "Ephi" }
+};
+
 // Progress storage
 let userProgress = {
     user1: { completedDays: [], name: "Belidet" },
     user2: { completedDays: [], name: "Ephi" }
 };
+
+// Store pending user selection for PIN verification
+let pendingUserId = null;
 
 // ===== New Testament & Old Testament Bible Data =====
 const ntBooks = [
@@ -280,6 +289,77 @@ function prePopulateProgress() {
     console.log('Day 3 (April 15 - Today): Matthew 3, Genesis 9-12');
 }
 
+// ===== PIN Authentication Functions =====
+function showPinModal(userId) {
+    pendingUserId = userId;
+    const modal = document.getElementById('pin-modal');
+    const pinUserName = document.getElementById('pin-user-name');
+    const pinInput = document.getElementById('pin-input');
+    const pinError = document.getElementById('pin-error');
+    
+    // Set the user name in the modal
+    const userName = userId === 'user1' ? 'Belidet' : 'Ephi';
+    pinUserName.textContent = `${userName}`;
+    
+    // Clear previous input and error
+    pinInput.value = '';
+    pinError.style.display = 'none';
+    
+    // Show modal
+    modal.style.display = 'flex';
+    
+    // Focus on input
+    setTimeout(() => pinInput.focus(), 100);
+}
+
+function verifyPin() {
+    const pinInput = document.getElementById('pin-input');
+    const enteredPin = pinInput.value;
+    const pinError = document.getElementById('pin-error');
+    
+    if (!pendingUserId) {
+        closePinModal();
+        return;
+    }
+    
+    const expectedPin = userCredentials[pendingUserId].pin;
+    
+    if (enteredPin === expectedPin) {
+        // PIN correct - proceed with login
+        closePinModal();
+        completeLogin(pendingUserId);
+        pendingUserId = null;
+    } else {
+        // PIN incorrect - show error
+        pinError.style.display = 'block';
+        pinInput.value = '';
+        pinInput.focus();
+    }
+}
+
+function closePinModal() {
+    const modal = document.getElementById('pin-modal');
+    modal.style.display = 'none';
+    pendingUserId = null;
+}
+
+function completeLogin(userId) {
+    currentUser = userId;
+    viewingOtherUser = false;
+    document.getElementById('user-selector').style.display = 'none';
+    document.getElementById('app-container').style.display = 'block';
+    document.getElementById('viewing-banner').style.display = 'none';
+    
+    // Set the view button text correctly for the selected user
+    const viewBtn = document.getElementById('view-other-btn');
+    if (viewBtn) {
+        const otherUserName = currentUser === 'user1' ? userProgress.user2.name : userProgress.user1.name;
+        viewBtn.textContent = `👥 View ${otherUserName}`;
+    }
+    
+    loadUserProgress();
+}
+
 // ===== Cloud Sync Functions =====
 async function loadProgressFromCloud(userId) {
     try {
@@ -349,20 +429,8 @@ function showUserSelector() {
 }
 
 function selectUser(userId) {
-    currentUser = userId;
-    viewingOtherUser = false;
-    document.getElementById('user-selector').style.display = 'none';
-    document.getElementById('app-container').style.display = 'block';
-    document.getElementById('viewing-banner').style.display = 'none';
-    
-    // Set the view button text correctly for the selected user
-    const viewBtn = document.getElementById('view-other-btn');
-    if (viewBtn) {
-        const otherUserName = currentUser === 'user1' ? userProgress.user2.name : userProgress.user1.name;
-        viewBtn.textContent = `👥 View ${otherUserName}`;
-    }
-    
-    loadUserProgress();
+    // Show PIN modal instead of directly loading
+    showPinModal(userId);
 }
 
 function viewOtherUser() {
@@ -942,6 +1010,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('select-user2')?.addEventListener('click', () => selectUser('user2'));
     document.getElementById('view-other-btn')?.addEventListener('click', viewOtherUser);
     document.getElementById('back-to-self-btn')?.addEventListener('click', switchBackToSelf);
+    
+    // PIN modal event listeners
+    document.getElementById('pin-submit')?.addEventListener('click', verifyPin);
+    document.getElementById('pin-cancel')?.addEventListener('click', closePinModal);
+    document.getElementById('pin-input')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            verifyPin();
+        }
+    });
     
     initCalendarNavigation();
     setupNotifications();
