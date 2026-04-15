@@ -252,8 +252,7 @@ function generateReadingPlan() {
 readingPlan = generateReadingPlan();
 
 // Set start date to April 13, 2026
-// Day 1: April 13, Day 2: April 14, Day 3: April 15 (Today)
-const START_DATE = new Date(2026, 3, 13); // April 13, 2026 (month is 0-indexed, so 3 = April)
+const START_DATE = new Date(2026, 3, 13);
 
 function assignDatesToPlan() {
     readingPlan.forEach((day, index) => {
@@ -264,12 +263,8 @@ function assignDatesToPlan() {
 }
 assignDatesToPlan();
 
-// Pre-populate existing progress - Days 1, 2, and 3 completed
-// Day 1 (April 13): Matthew 1, Genesis 1-4
-// Day 2 (April 14): Matthew 2, Genesis 5-8
-// Day 3 (April 15 - Today): Matthew 3, Genesis 9-12
+// Pre-populate existing progress
 function prePopulateProgress() {
-    // Mark Days 1, 2, and 3 as completed
     for (let day = 1; day <= 3; day++) {
         const dayIndex = day - 1;
         if (readingPlan[dayIndex]) {
@@ -284,9 +279,6 @@ function prePopulateProgress() {
     saveAllProgress();
     
     console.log('Pre-populated progress: Days 1-3 completed');
-    console.log('Day 1 (April 13): Matthew 1, Genesis 1-4');
-    console.log('Day 2 (April 14): Matthew 2, Genesis 5-8');
-    console.log('Day 3 (April 15 - Today): Matthew 3, Genesis 9-12');
 }
 
 // ===== PIN Authentication Functions =====
@@ -297,18 +289,13 @@ function showPinModal(userId) {
     const pinInput = document.getElementById('pin-input');
     const pinError = document.getElementById('pin-error');
     
-    // Set the user name in the modal
     const userName = userId === 'user1' ? 'Belidet' : 'Ephi';
     pinUserName.textContent = `${userName}`;
     
-    // Clear previous input and error
     pinInput.value = '';
     pinError.style.display = 'none';
-    
-    // Show modal
     modal.style.display = 'flex';
     
-    // Focus on input
     setTimeout(() => pinInput.focus(), 100);
 }
 
@@ -325,12 +312,10 @@ function verifyPin() {
     const expectedPin = userCredentials[pendingUserId].pin;
     
     if (enteredPin === expectedPin) {
-        // PIN correct - proceed with login
         closePinModal();
         completeLogin(pendingUserId);
         pendingUserId = null;
     } else {
-        // PIN incorrect - show error
         pinError.style.display = 'block';
         pinInput.value = '';
         pinInput.focus();
@@ -350,13 +335,13 @@ function completeLogin(userId) {
     document.getElementById('app-container').style.display = 'block';
     document.getElementById('viewing-banner').style.display = 'none';
     
-    // Set the view button text correctly for the selected user
     const viewBtn = document.getElementById('view-other-btn');
     if (viewBtn) {
         const otherUserName = currentUser === 'user1' ? userProgress.user2.name : userProgress.user1.name;
         viewBtn.textContent = `👥 View ${otherUserName}`;
     }
     
+    // Load user progress and render everything
     loadUserProgress();
 }
 
@@ -416,10 +401,12 @@ function saveLocalProgress(userId, completedDays) {
 }
 
 function saveAllProgress() {
+    if (currentUser) {
+        saveLocalProgress(currentUser, userProgress[currentUser].completedDays);
+        saveProgressToCloud(currentUser, userProgress[currentUser].completedDays);
+    }
     saveLocalProgress('user1', userProgress.user1.completedDays);
     saveLocalProgress('user2', userProgress.user2.completedDays);
-    saveProgressToCloud('user1', userProgress.user1.completedDays);
-    saveProgressToCloud('user2', userProgress.user2.completedDays);
 }
 
 // ===== User Management =====
@@ -429,7 +416,6 @@ function showUserSelector() {
 }
 
 function selectUser(userId) {
-    // Show PIN modal instead of directly loading
     showPinModal(userId);
 }
 
@@ -457,6 +443,7 @@ async function loadUserProgress(viewing = false) {
     const completedDays = await syncProgressForUser(targetUser);
     userProgress[targetUser].completedDays = completedDays;
     
+    // Update reading plan completion status
     readingPlan.forEach(day => {
         day.completed = completedDays.includes(day.day);
     });
@@ -521,7 +508,6 @@ function updateStatistics(viewing = false) {
     const viewBtn = document.getElementById('view-other-btn');
     if (viewBtn && currentUser) {
         viewBtn.style.display = 'inline-block';
-        // Set button text to view the OTHER user
         const otherUserName = currentUser === 'user1' ? userProgress.user2.name : userProgress.user1.name;
         viewBtn.textContent = `👥 View ${otherUserName}`;
     }
@@ -598,7 +584,6 @@ function showToast(message, type = "info") {
 // ===== UI Rendering Functions =====
 function updateCurrentDay() {
     readingPlan.forEach(day => day.isCurrent = false);
-    // Find the first uncompleted day
     for (let i = 0; i < readingPlan.length; i++) {
         if (!readingPlan[i].completed) {
             readingPlan[i].isCurrent = true;
@@ -1011,7 +996,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('view-other-btn')?.addEventListener('click', viewOtherUser);
     document.getElementById('back-to-self-btn')?.addEventListener('click', switchBackToSelf);
     
-    // PIN modal event listeners
     document.getElementById('pin-submit')?.addEventListener('click', verifyPin);
     document.getElementById('pin-cancel')?.addEventListener('click', closePinModal);
     document.getElementById('pin-input')?.addEventListener('keypress', (e) => {
