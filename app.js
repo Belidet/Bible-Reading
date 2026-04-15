@@ -14,20 +14,11 @@ let currentUser = null;
 let otherUser = null;
 let viewingOtherUser = false;
 
-// User PIN credentials
-const userCredentials = {
-    user1: { pin: "2721", name: "Belidet" },
-    user2: { pin: "2324", name: "Ephi" }
-};
-
 // Progress storage
 let userProgress = {
     user1: { completedDays: [], name: "Belidet" },
     user2: { completedDays: [], name: "Ephi" }
 };
-
-// Store pending user selection for PIN verification
-let pendingUserId = null;
 
 // ===== New Testament & Old Testament Bible Data =====
 const ntBooks = [
@@ -252,7 +243,8 @@ function generateReadingPlan() {
 readingPlan = generateReadingPlan();
 
 // Set start date to April 13, 2026
-const START_DATE = new Date(2026, 3, 13);
+// Day 1: April 13, Day 2: April 14, Day 3: April 15 (Today)
+const START_DATE = new Date(2026, 3, 13); // April 13, 2026 (month is 0-indexed, so 3 = April)
 
 function assignDatesToPlan() {
     readingPlan.forEach((day, index) => {
@@ -263,8 +255,12 @@ function assignDatesToPlan() {
 }
 assignDatesToPlan();
 
-// Pre-populate existing progress
+// Pre-populate existing progress - Days 1, 2, and 3 completed
+// Day 1 (April 13): Matthew 1, Genesis 1-4
+// Day 2 (April 14): Matthew 2, Genesis 5-8
+// Day 3 (April 15 - Today): Matthew 3, Genesis 9-12
 function prePopulateProgress() {
+    // Mark Days 1, 2, and 3 as completed
     for (let day = 1; day <= 3; day++) {
         const dayIndex = day - 1;
         if (readingPlan[dayIndex]) {
@@ -279,70 +275,9 @@ function prePopulateProgress() {
     saveAllProgress();
     
     console.log('Pre-populated progress: Days 1-3 completed');
-}
-
-// ===== PIN Authentication Functions =====
-function showPinModal(userId) {
-    pendingUserId = userId;
-    const modal = document.getElementById('pin-modal');
-    const pinUserName = document.getElementById('pin-user-name');
-    const pinInput = document.getElementById('pin-input');
-    const pinError = document.getElementById('pin-error');
-    
-    const userName = userId === 'user1' ? 'Belidet' : 'Ephi';
-    pinUserName.textContent = `${userName}`;
-    
-    pinInput.value = '';
-    pinError.style.display = 'none';
-    modal.style.display = 'flex';
-    
-    setTimeout(() => pinInput.focus(), 100);
-}
-
-function verifyPin() {
-    const pinInput = document.getElementById('pin-input');
-    const enteredPin = pinInput.value;
-    const pinError = document.getElementById('pin-error');
-    
-    if (!pendingUserId) {
-        closePinModal();
-        return;
-    }
-    
-    const expectedPin = userCredentials[pendingUserId].pin;
-    
-    if (enteredPin === expectedPin) {
-        closePinModal();
-        completeLogin(pendingUserId);
-        pendingUserId = null;
-    } else {
-        pinError.style.display = 'block';
-        pinInput.value = '';
-        pinInput.focus();
-    }
-}
-
-function closePinModal() {
-    const modal = document.getElementById('pin-modal');
-    modal.style.display = 'none';
-    pendingUserId = null;
-}
-
-function completeLogin(userId) {
-    currentUser = userId;
-    viewingOtherUser = false;
-    document.getElementById('user-selector').style.display = 'none';
-    document.getElementById('app-container').style.display = 'block';
-    document.getElementById('viewing-banner').style.display = 'none';
-    
-    const viewBtn = document.getElementById('view-other-btn');
-    if (viewBtn) {
-        const otherUserName = currentUser === 'user1' ? userProgress.user2.name : userProgress.user1.name;
-        viewBtn.textContent = `👥 View ${otherUserName}`;
-    }
-    
-    // Load user progress and render everything
-    loadUserProgress();
+    console.log('Day 1 (April 13): Matthew 1, Genesis 1-4');
+    console.log('Day 2 (April 14): Matthew 2, Genesis 5-8');
+    console.log('Day 3 (April 15 - Today): Matthew 3, Genesis 9-12');
 }
 
 // ===== Cloud Sync Functions =====
@@ -401,12 +336,10 @@ function saveLocalProgress(userId, completedDays) {
 }
 
 function saveAllProgress() {
-    if (currentUser) {
-        saveLocalProgress(currentUser, userProgress[currentUser].completedDays);
-        saveProgressToCloud(currentUser, userProgress[currentUser].completedDays);
-    }
     saveLocalProgress('user1', userProgress.user1.completedDays);
     saveLocalProgress('user2', userProgress.user2.completedDays);
+    saveProgressToCloud('user1', userProgress.user1.completedDays);
+    saveProgressToCloud('user2', userProgress.user2.completedDays);
 }
 
 // ===== User Management =====
@@ -416,7 +349,20 @@ function showUserSelector() {
 }
 
 function selectUser(userId) {
-    showPinModal(userId);
+    currentUser = userId;
+    viewingOtherUser = false;
+    document.getElementById('user-selector').style.display = 'none';
+    document.getElementById('app-container').style.display = 'block';
+    document.getElementById('viewing-banner').style.display = 'none';
+    
+    // Set the view button text correctly for the selected user
+    const viewBtn = document.getElementById('view-other-btn');
+    if (viewBtn) {
+        const otherUserName = currentUser === 'user1' ? userProgress.user2.name : userProgress.user1.name;
+        viewBtn.textContent = `👥 View ${otherUserName}`;
+    }
+    
+    loadUserProgress();
 }
 
 function viewOtherUser() {
@@ -443,7 +389,6 @@ async function loadUserProgress(viewing = false) {
     const completedDays = await syncProgressForUser(targetUser);
     userProgress[targetUser].completedDays = completedDays;
     
-    // Update reading plan completion status
     readingPlan.forEach(day => {
         day.completed = completedDays.includes(day.day);
     });
@@ -508,6 +453,7 @@ function updateStatistics(viewing = false) {
     const viewBtn = document.getElementById('view-other-btn');
     if (viewBtn && currentUser) {
         viewBtn.style.display = 'inline-block';
+        // Set button text to view the OTHER user
         const otherUserName = currentUser === 'user1' ? userProgress.user2.name : userProgress.user1.name;
         viewBtn.textContent = `👥 View ${otherUserName}`;
     }
@@ -584,6 +530,7 @@ function showToast(message, type = "info") {
 // ===== UI Rendering Functions =====
 function updateCurrentDay() {
     readingPlan.forEach(day => day.isCurrent = false);
+    // Find the first uncompleted day
     for (let i = 0; i < readingPlan.length; i++) {
         if (!readingPlan[i].completed) {
             readingPlan[i].isCurrent = true;
@@ -995,14 +942,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('select-user2')?.addEventListener('click', () => selectUser('user2'));
     document.getElementById('view-other-btn')?.addEventListener('click', viewOtherUser);
     document.getElementById('back-to-self-btn')?.addEventListener('click', switchBackToSelf);
-    
-    document.getElementById('pin-submit')?.addEventListener('click', verifyPin);
-    document.getElementById('pin-cancel')?.addEventListener('click', closePinModal);
-    document.getElementById('pin-input')?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            verifyPin();
-        }
-    });
     
     initCalendarNavigation();
     setupNotifications();
