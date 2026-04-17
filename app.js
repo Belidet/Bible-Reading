@@ -1,7 +1,6 @@
 // ===== Bible Reading App - 5 Chapters Daily Plan =====
 // Always 5 chapters per day: 1 NT + 4 OT until OT finishes, then 5 NT
 // Start Date: April 13, 2026
-// Day 1: April 13, Day 2: April 14, Day 3: April 15 (Today)
 
 // ===== User PIN Codes =====
 const USER_PINS = {
@@ -29,93 +28,43 @@ let userProgress = {
 
 // ===== New Testament & Old Testament Bible Data =====
 const ntBooks = [
-    { name: "Matthew", chapters: 28 },
-    { name: "Mark", chapters: 16 },
-    { name: "Luke", chapters: 24 },
-    { name: "John", chapters: 21 },
-    { name: "Acts", chapters: 28 },
-    { name: "Romans", chapters: 16 },
-    { name: "1 Corinthians", chapters: 16 },
-    { name: "2 Corinthians", chapters: 13 },
-    { name: "Galatians", chapters: 6 },
-    { name: "Ephesians", chapters: 6 },
-    { name: "Philippians", chapters: 4 },
-    { name: "Colossians", chapters: 4 },
-    { name: "1 Thessalonians", chapters: 5 },
-    { name: "2 Thessalonians", chapters: 3 },
-    { name: "1 Timothy", chapters: 6 },
-    { name: "2 Timothy", chapters: 4 },
-    { name: "Titus", chapters: 3 },
-    { name: "Philemon", chapters: 1 },
-    { name: "Hebrews", chapters: 13 },
-    { name: "James", chapters: 5 },
-    { name: "1 Peter", chapters: 5 },
-    { name: "2 Peter", chapters: 3 },
-    { name: "1 John", chapters: 5 },
-    { name: "2 John", chapters: 1 },
-    { name: "3 John", chapters: 1 },
-    { name: "Jude", chapters: 1 },
-    { name: "Revelation", chapters: 22 }
+    { name: "Matthew", chapters: 28 }, { name: "Mark", chapters: 16 }, { name: "Luke", chapters: 24 },
+    { name: "John", chapters: 21 }, { name: "Acts", chapters: 28 }, { name: "Romans", chapters: 16 },
+    { name: "1 Corinthians", chapters: 16 }, { name: "2 Corinthians", chapters: 13 }, { name: "Galatians", chapters: 6 },
+    { name: "Ephesians", chapters: 6 }, { name: "Philippians", chapters: 4 }, { name: "Colossians", chapters: 4 },
+    { name: "1 Thessalonians", chapters: 5 }, { name: "2 Thessalonians", chapters: 3 }, { name: "1 Timothy", chapters: 6 },
+    { name: "2 Timothy", chapters: 4 }, { name: "Titus", chapters: 3 }, { name: "Philemon", chapters: 1 },
+    { name: "Hebrews", chapters: 13 }, { name: "James", chapters: 5 }, { name: "1 Peter", chapters: 5 },
+    { name: "2 Peter", chapters: 3 }, { name: "1 John", chapters: 5 }, { name: "2 John", chapters: 1 },
+    { name: "3 John", chapters: 1 }, { name: "Jude", chapters: 1 }, { name: "Revelation", chapters: 22 }
 ];
 
 const otBooks = [
-    { name: "Genesis", chapters: 50 },
-    { name: "Exodus", chapters: 40 },
-    { name: "Leviticus", chapters: 27 },
-    { name: "Numbers", chapters: 36 },
-    { name: "Deuteronomy", chapters: 34 },
-    { name: "Joshua", chapters: 24 },
-    { name: "Judges", chapters: 21 },
-    { name: "Ruth", chapters: 4 },
-    { name: "1 Samuel", chapters: 31 },
-    { name: "2 Samuel", chapters: 24 },
-    { name: "1 Kings", chapters: 22 },
-    { name: "2 Kings", chapters: 25 },
-    { name: "1 Chronicles", chapters: 29 },
-    { name: "2 Chronicles", chapters: 36 },
-    { name: "Ezra", chapters: 10 },
-    { name: "Nehemiah", chapters: 13 },
-    { name: "Esther", chapters: 10 },
-    { name: "Job", chapters: 42 },
-    { name: "Psalms", chapters: 150 },
-    { name: "Proverbs", chapters: 31 },
-    { name: "Ecclesiastes", chapters: 12 },
-    { name: "Song of Solomon", chapters: 8 },
-    { name: "Isaiah", chapters: 66 },
-    { name: "Jeremiah", chapters: 52 },
-    { name: "Lamentations", chapters: 5 },
-    { name: "Ezekiel", chapters: 48 },
-    { name: "Daniel", chapters: 12 },
-    { name: "Hosea", chapters: 14 },
-    { name: "Joel", chapters: 3 },
-    { name: "Amos", chapters: 9 },
-    { name: "Obadiah", chapters: 1 },
-    { name: "Jonah", chapters: 4 },
-    { name: "Micah", chapters: 7 },
-    { name: "Nahum", chapters: 3 },
-    { name: "Habakkuk", chapters: 3 },
-    { name: "Zephaniah", chapters: 3 },
-    { name: "Haggai", chapters: 2 },
-    { name: "Zechariah", chapters: 14 },
-    { name: "Malachi", chapters: 4 }
+    { name: "Genesis", chapters: 50 }, { name: "Exodus", chapters: 40 }, { name: "Leviticus", chapters: 27 },
+    { name: "Numbers", chapters: 36 }, { name: "Deuteronomy", chapters: 34 }, { name: "Joshua", chapters: 24 },
+    { name: "Judges", chapters: 21 }, { name: "Ruth", chapters: 4 }, { name: "1 Samuel", chapters: 31 },
+    { name: "2 Samuel", chapters: 24 }, { name: "1 Kings", chapters: 22 }, { name: "2 Kings", chapters: 25 },
+    { name: "1 Chronicles", chapters: 29 }, { name: "2 Chronicles", chapters: 36 }, { name: "Ezra", chapters: 10 },
+    { name: "Nehemiah", chapters: 13 }, { name: "Esther", chapters: 10 }, { name: "Job", chapters: 42 },
+    { name: "Psalms", chapters: 150 }, { name: "Proverbs", chapters: 31 }, { name: "Ecclesiastes", chapters: 12 },
+    { name: "Song of Solomon", chapters: 8 }, { name: "Isaiah", chapters: 66 }, { name: "Jeremiah", chapters: 52 },
+    { name: "Lamentations", chapters: 5 }, { name: "Ezekiel", chapters: 48 }, { name: "Daniel", chapters: 12 },
+    { name: "Hosea", chapters: 14 }, { name: "Joel", chapters: 3 }, { name: "Amos", chapters: 9 },
+    { name: "Obadiah", chapters: 1 }, { name: "Jonah", chapters: 4 }, { name: "Micah", chapters: 7 },
+    { name: "Nahum", chapters: 3 }, { name: "Habakkuk", chapters: 3 }, { name: "Zephaniah", chapters: 3 },
+    { name: "Haggai", chapters: 2 }, { name: "Zechariah", chapters: 14 }, { name: "Malachi", chapters: 4 }
 ];
 
-// Reading plan structure: each day has exactly 5 chapters total
+// Reading plan structure
 let readingPlan = [];
+const START_DATE = new Date(2026, 3, 13);
 
-// Generate the daily reading plan (always 5 chapters per day)
 function generateReadingPlan() {
     const plan = [];
-    let ntBookIndex = 0;
-    let ntChapter = 1;
-    let otBookIndex = 0;
-    let otChapter = 1;
-    
-    let ntCompleted = false;
-    let otCompleted = false;
+    let ntBookIndex = 0, ntChapter = 1;
+    let otBookIndex = 0, otChapter = 1;
+    let ntCompleted = false, otCompleted = false;
     let day = 1;
-    
-    console.log("Generating reading plan with 5 chapters per day...");
     
     while (!ntCompleted || !otCompleted) {
         const reading = {
@@ -130,7 +79,6 @@ function generateReadingPlan() {
         let chaptersAdded = 0;
         const targetChapters = 5;
         
-        // If OT is not finished, add OT chapters first (up to 4)
         if (!otCompleted) {
             let otChaptersToAdd = Math.min(4, targetChapters - chaptersAdded);
             let otAdded = 0;
@@ -156,22 +104,15 @@ function generateReadingPlan() {
                 }
             }
             
-            // Check if OT is now finished
             if (otBookIndex >= otBooks.length) {
                 otCompleted = true;
-                console.log(`OT completed on day ${day}`);
             }
             
-            // Add 1 NT chapter if we still need chapters
             if (chaptersAdded < targetChapters && !ntCompleted && ntBookIndex < ntBooks.length) {
                 const book = ntBooks[ntBookIndex];
-                reading.ntPassages.push({
-                    book: book.name,
-                    chapter: ntChapter
-                });
+                reading.ntPassages.push({ book: book.name, chapter: ntChapter });
                 chaptersAdded++;
                 
-                // Move to next NT chapter
                 if (ntChapter < book.chapters) {
                     ntChapter++;
                 } else {
@@ -179,15 +120,12 @@ function generateReadingPlan() {
                     ntChapter = 1;
                 }
                 
-                // Check if NT is finished
                 if (ntBookIndex >= ntBooks.length) {
                     ntCompleted = true;
-                    console.log(`NT completed on day ${day}`);
                 }
             }
         }
         
-        // If OT is finished, fill all remaining chapters with NT (5 NT chapters per day)
         if (otCompleted && !ntCompleted) {
             let ntChaptersToAdd = targetChapters - chaptersAdded;
             let ntAdded = 0;
@@ -198,10 +136,7 @@ function generateReadingPlan() {
                 const toTake = Math.min(ntChaptersToAdd - ntAdded, remainingInBook);
                 
                 if (toTake === 1) {
-                    reading.ntPassages.push({
-                        book: book.name,
-                        chapter: ntChapter
-                    });
+                    reading.ntPassages.push({ book: book.name, chapter: ntChapter });
                 } else {
                     reading.ntPassages.push({
                         book: book.name,
@@ -221,13 +156,11 @@ function generateReadingPlan() {
                 
                 if (ntBookIndex >= ntBooks.length) {
                     ntCompleted = true;
-                    console.log(`NT completed on day ${day}`);
                     break;
                 }
             }
         }
         
-        // If both testaments are finished, break
         if (ntCompleted && otCompleted) {
             if (reading.ntPassages.length > 0 || reading.otPassages.length > 0) {
                 plan.push(reading);
@@ -237,21 +170,13 @@ function generateReadingPlan() {
         
         plan.push(reading);
         day++;
-        
-        // Safety break
         if (day > 500) break;
     }
     
-    console.log(`Generated ${plan.length} days of readings (${plan.length * 5} total chapters)`);
     return plan;
 }
 
-// Initialize reading plan
 readingPlan = generateReadingPlan();
-
-// Set start date to April 13, 2026
-// Day 1: April 13, Day 2: April 14, Day 3: April 15 (Today)
-const START_DATE = new Date(2026, 3, 13); // April 13, 2026 (month is 0-indexed, so 3 = April)
 
 function assignDatesToPlan() {
     readingPlan.forEach((day, index) => {
@@ -262,375 +187,164 @@ function assignDatesToPlan() {
 }
 assignDatesToPlan();
 
-// Pre-populate existing progress - Days 1, 2, and 3 completed
-// Day 1 (April 13): Matthew 1, Genesis 1-4
-// Day 2 (April 14): Matthew 2, Genesis 5-8
-// Day 3 (April 15 - Today): Matthew 3, Genesis 9-12
-function prePopulateProgress() {
-    // Mark Days 1, 2, and 3 as completed
-    for (let day = 1; day <= 3; day++) {
-        const dayIndex = day - 1;
-        if (readingPlan[dayIndex]) {
-            readingPlan[dayIndex].completed = true;
-        }
-    }
-    
-    const completedDays = [1, 2, 3];
-    userProgress.user1.completedDays = [...completedDays];
-    userProgress.user2.completedDays = [...completedDays];
-    
-    saveAllProgress();
-    
-    console.log('Pre-populated progress: Days 1-3 completed');
-    console.log('Day 1 (April 13): Matthew 1, Genesis 1-4');
-    console.log('Day 2 (April 14): Matthew 2, Genesis 5-8');
-    console.log('Day 3 (April 15 - Today): Matthew 3, Genesis 9-12');
+// ===== Storage Functions =====
+function saveLocalProgress(userId, completedDays) {
+    localStorage.setItem(`bible-reading-${userId}`, JSON.stringify(completedDays));
+    console.log(`Saved locally for ${userId}: ${completedDays.length} days`);
 }
 
-// ===== Cloud Sync Functions =====
-async function loadProgressFromCloud(userId) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/sync?user=${userId}`);
-        if (!response.ok) throw new Error('Failed to load from cloud');
-        const data = await response.json();
-        return data.completedDays || [];
-    } catch (error) {
-        console.error('Cloud load failed:', error);
-        return null;
-    }
+function loadLocalProgress(userId) {
+    const stored = localStorage.getItem(`bible-reading-${userId}`);
+    return stored ? JSON.parse(stored) : [];
 }
 
 async function saveProgressToCloud(userId, completedDays, force = false) {
     const now = Date.now();
-    if (!force && now - lastCloudSave < CLOUD_SAVE_DEBOUNCE) {
-        return false;
-    }
+    if (!force && now - lastCloudSave < CLOUD_SAVE_DEBOUNCE) return false;
     try {
         const response = await fetch(`${API_BASE_URL}/sync`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId, completedDays })
         });
-        if (!response.ok) throw new Error('Failed to save to cloud');
+        if (!response.ok) throw new Error('Cloud save failed');
         lastCloudSave = now;
+        console.log(`Cloud saved for ${userId}: ${completedDays.length} days`);
         return true;
     } catch (error) {
-        console.error('Cloud save failed:', error);
+        console.error('Cloud save error:', error);
         return false;
     }
 }
 
+async function loadProgressFromCloud(userId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/sync?user=${userId}`);
+        if (!response.ok) throw new Error('Cloud load failed');
+        const data = await response.json();
+        return data.completedDays || [];
+    } catch (error) {
+        console.error('Cloud load error:', error);
+        return null;
+    }
+}
+
 async function syncProgressForUser(userId) {
-    const cloudProgress = await loadProgressFromCloud(userId);
-    const storageKey = `bible-reading-${userId}`;
-    const localProgress = localStorage.getItem(storageKey);
-    const localDays = localProgress ? JSON.parse(localProgress) : [];
+    const cloudDays = await loadProgressFromCloud(userId);
+    const localDays = loadLocalProgress(userId);
     
-    if (cloudProgress !== null && cloudProgress.length > 0) {
-        if (cloudProgress.length > localDays.length) {
-            return cloudProgress;
-        } else if (localDays.length > cloudProgress.length) {
+    if (cloudDays && cloudDays.length > 0) {
+        if (cloudDays.length > localDays.length) {
+            return cloudDays;
+        } else if (localDays.length > cloudDays.length) {
             await saveProgressToCloud(userId, localDays, true);
             return localDays;
         }
-        return cloudProgress;
+        return cloudDays;
     }
     return localDays;
 }
 
-function saveLocalProgress(userId, completedDays) {
-    localStorage.setItem(`bible-reading-${userId}`, JSON.stringify(completedDays));
-}
-
 function saveAllProgress() {
-    saveLocalProgress('user1', userProgress.user1.completedDays);
-    saveLocalProgress('user2', userProgress.user2.completedDays);
-    saveProgressToCloud('user1', userProgress.user1.completedDays);
-    saveProgressToCloud('user2', userProgress.user2.completedDays);
-}
-
-// ===== PIN Authentication Functions =====
-function showPinModal(userId) {
-    pendingUser = userId;
-    const userName = userId === 'user1' ? userProgress.user1.name : userProgress.user2.name;
-    document.getElementById('pin-user-name').textContent = userName;
-    document.getElementById('pin-modal').style.display = 'flex';
-    document.getElementById('pin-error').style.display = 'none';
-    
-    // Clear all PIN inputs
-    for (let i = 1; i <= 4; i++) {
-        const input = document.getElementById(`pin-${i}`);
-        input.value = '';
+    if (currentUser) {
+        saveLocalProgress(currentUser, userProgress[currentUser].completedDays);
+        saveProgressToCloud(currentUser, userProgress[currentUser].completedDays);
     }
-    
-    // Focus on first input
-    setTimeout(() => {
-        document.getElementById('pin-1').focus();
-    }, 100);
-    
-    // Add input event listeners for auto-advance
-    for (let i = 1; i <= 4; i++) {
-        const input = document.getElementById(`pin-${i}`);
-        input.removeEventListener('input', handlePinInput);
-        input.addEventListener('input', handlePinInput);
-    }
-}
-
-function handlePinInput(e) {
-    const input = e.target;
-    const id = parseInt(input.id.split('-')[1]);
-    
-    if (input.value.length === 1) {
-        if (id < 4) {
-            document.getElementById(`pin-${id + 1}`).focus();
-        } else {
-            // Auto-submit when all 4 digits are entered
-            document.getElementById('pin-4').blur();
-            setTimeout(() => verifyPin(), 100);
-        }
-    }
-}
-
-function getEnteredPin() {
-    let pin = '';
-    for (let i = 1; i <= 4; i++) {
-        pin += document.getElementById(`pin-${i}`).value;
-    }
-    return pin;
-}
-
-function verifyPin() {
-    const enteredPin = getEnteredPin();
-    const correctPin = USER_PINS[pendingUser];
-    
-    if (enteredPin.length === 4 && enteredPin === correctPin) {
-        document.getElementById('pin-modal').style.display = 'none';
-        completeUserSelection(pendingUser);
-    } else {
-        document.getElementById('pin-error').style.display = 'block';
-        // Clear all PIN inputs
-        for (let i = 1; i <= 4; i++) {
-            document.getElementById(`pin-${i}`).value = '';
-        }
-        document.getElementById('pin-1').focus();
-    }
-}
-
-function cancelPinModal() {
-    document.getElementById('pin-modal').style.display = 'none';
-    pendingUser = null;
-}
-
-function completeUserSelection(userId) {
-    currentUser = userId;
-    viewingOtherUser = false;
-    document.getElementById('user-selector').style.display = 'none';
-    document.getElementById('app-container').style.display = 'block';
-    document.getElementById('viewing-banner').style.display = 'none';
-    
-    // Set the view button text correctly for the selected user
-    const viewBtn = document.getElementById('view-other-btn');
-    if (viewBtn) {
-        const otherUserName = currentUser === 'user1' ? userProgress.user2.name : userProgress.user1.name;
-        viewBtn.textContent = `👥 View ${otherUserName}`;
-    }
-    
-    loadUserProgress();
-    showToast(`Welcome back, ${userId === 'user1' ? 'Belidet' : 'Ephi'}! ✝️`, "success");
-}
-
-function switchUser() {
-    // Clear any viewing state
-    viewingOtherUser = false;
-    currentUser = null;
-    document.getElementById('app-container').style.display = 'none';
-    document.getElementById('user-selector').style.display = 'flex';
-    document.getElementById('viewing-banner').style.display = 'none';
-    showToast("Please select a user", "info");
-}
-
-// ===== User Management =====
-function showUserSelector() {
-    const selector = document.getElementById('user-selector');
-    if (selector) selector.style.display = 'flex';
-}
-
-function selectUser(userId) {
-    showPinModal(userId);
-}
-
-function viewOtherUser() {
-    if (!currentUser) return;
-    viewingOtherUser = true;
-    otherUser = currentUser === 'user1' ? 'user2' : 'user1';
-    const banner = document.getElementById('viewing-banner');
-    banner.style.display = 'flex';
-    banner.querySelector('span').textContent = 
-        `👁️ Viewing ${otherUser === 'user1' ? userProgress.user1.name : userProgress.user2.name}'s progress`;
-    loadUserProgress(true);
-}
-
-function switchBackToSelf() {
-    viewingOtherUser = false;
-    document.getElementById('viewing-banner').style.display = 'none';
-    loadUserProgress();
-}
-
-async function loadUserProgress(viewing = false) {
-    const targetUser = viewing ? otherUser : currentUser;
-    if (!targetUser) return;
-    
-    const completedDays = await syncProgressForUser(targetUser);
-    userProgress[targetUser].completedDays = completedDays;
-    
-    readingPlan.forEach(day => {
-        day.completed = completedDays.includes(day.day);
-    });
-    
-    updateCurrentDay();
-    renderReadingList(viewing);
-    updateProgressBar();
-    renderCalendar(viewing);
-    updateTodayHighlight(viewing);
-    updateStatistics(viewing);
-}
-
-function toggleDay(dayNum) {
-    if (viewingOtherUser) {
-        showToast("You cannot mark someone else's reading as complete", "warning");
-        return;
-    }
-    
-    const day = readingPlan.find(d => d.day === dayNum);
-    if (day) {
-        day.completed = !day.completed;
-        updateCurrentDay();
-        
-        userProgress[currentUser].completedDays = readingPlan.filter(d => d.completed).map(d => d.day);
-        saveAllProgress();
-        
-        const card = document.querySelector(`.day-card[data-day="${dayNum}"]`);
-        if (card) {
-            card.style.transform = 'scale(0.98)';
-            setTimeout(() => card.style.transform = '', 150);
-        }
-        
-        renderReadingList(false);
-        updateProgressBar();
-        renderCalendar(false);
-        updateTodayHighlight(false);
-        updateStatistics(false);
-        
-        if (day.completed) {
-            showToast(`Day ${dayNum} marked as read! 📖`, "success");
-        } else {
-            showToast(`Day ${dayNum} marked as unread`, "info");
-        }
+    if (currentUser === 'user1') {
+        saveLocalProgress('user2', userProgress.user2.completedDays);
+    } else if (currentUser === 'user2') {
+        saveLocalProgress('user1', userProgress.user1.completedDays);
     }
 }
 
 // ===== Statistics Functions =====
+function calculateStatistics(userId) {
+    const completedDaysArray = userProgress[userId].completedDays;
+    const completedCount = completedDaysArray.length;
+    const totalDays = readingPlan.length;
+    const percentage = Math.round((completedCount / totalDays) * 100);
+    
+    // Calculate current streak
+    let currentStreak = 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    let todayDayNum = null;
+    for (const day of readingPlan) {
+        const dayDate = new Date(day.date);
+        dayDate.setHours(0, 0, 0, 0);
+        if (dayDate.getTime() === today.getTime()) {
+            todayDayNum = day.day;
+            break;
+        }
+    }
+    
+    if (todayDayNum) {
+        for (let d = todayDayNum; d >= 1; d--) {
+            if (completedDaysArray.includes(d)) {
+                currentStreak++;
+            } else {
+                break;
+            }
+        }
+    } else if (completedDaysArray.length > 0) {
+        const sorted = [...completedDaysArray].sort((a, b) => b - a);
+        let expected = sorted[0];
+        while (completedDaysArray.includes(expected)) {
+            currentStreak++;
+            expected--;
+        }
+    }
+    
+    // Calculate NT/OT chapters
+    let ntChaptersRead = 0;
+    let otChaptersRead = 0;
+    
+    completedDaysArray.forEach(dayNum => {
+        const day = readingPlan[dayNum - 1];
+        if (day) {
+            day.ntPassages.forEach(p => {
+                if (p.chapter) ntChaptersRead += 1;
+                else if (p.startChapter && p.endChapter) ntChaptersRead += (p.endChapter - p.startChapter + 1);
+            });
+            day.otPassages.forEach(p => {
+                otChaptersRead += (p.endChapter - p.startChapter + 1);
+            });
+        }
+    });
+    
+    return {
+        completedDays: completedCount,
+        totalDays: totalDays,
+        percentage: percentage,
+        currentStreak: currentStreak,
+        ntChaptersRead: ntChaptersRead,
+        otChaptersRead: otChaptersRead,
+        totalChaptersRead: ntChaptersRead + otChaptersRead
+    };
+}
+
 function updateStatistics(viewing = false) {
     const targetUser = viewing ? otherUser : currentUser;
     if (!targetUser) return;
     
     const stats = calculateStatistics(targetUser);
     
-    document.getElementById('stat-completed').textContent = stats.completedDays;
-    document.getElementById('stat-total').textContent = stats.totalDays;
-    document.getElementById('stat-percentage').textContent = `${stats.percentage}%`;
-    document.getElementById('stat-streak').textContent = stats.currentStreak;
-    document.getElementById('stat-nt-read').textContent = stats.ntChaptersRead;
-    document.getElementById('stat-ot-read').textContent = stats.otChaptersRead;
-    document.getElementById('stat-total-chapters').textContent = stats.totalChaptersRead;
+    const completedEl = document.getElementById('stat-completed');
+    const percentageEl = document.getElementById('stat-percentage');
+    const streakEl = document.getElementById('stat-streak');
+    const ntReadEl = document.getElementById('stat-nt-read');
+    const otReadEl = document.getElementById('stat-ot-read');
+    const totalChaptersEl = document.getElementById('stat-total-chapters');
     
-    const viewBtn = document.getElementById('view-other-btn');
-    if (viewBtn && currentUser) {
-        viewBtn.style.display = 'inline-block';
-        // Set button text to view the OTHER user
-        const otherUserName = currentUser === 'user1' ? userProgress.user2.name : userProgress.user1.name;
-        viewBtn.textContent = `👥 View ${otherUserName}`;
-    }
-}
-
-function calculateStatistics(userId) {
-    const userCompletedDays = userProgress[userId].completedDays;
-    const completedDays = userCompletedDays.length;
-    const totalDays = readingPlan.length;
-    const percentage = Math.round((completedDays / totalDays) * 100);
+    if (completedEl) completedEl.textContent = stats.completedDays;
+    if (percentageEl) percentageEl.textContent = `${stats.percentage}%`;
+    if (streakEl) streakEl.textContent = stats.currentStreak;
+    if (ntReadEl) ntReadEl.textContent = stats.ntChaptersRead;
+    if (otReadEl) otReadEl.textContent = stats.otChaptersRead;
+    if (totalChaptersEl) totalChaptersEl.textContent = stats.totalChaptersRead;
     
-    let streak = 0;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    for (let i = 0; i < readingPlan.length; i++) {
-        const dayDate = new Date(readingPlan[i].date);
-        dayDate.setHours(0, 0, 0, 0);
-        if (dayDate > today) continue;
-        if (userCompletedDays.includes(readingPlan[i].day)) {
-            streak++;
-        } else {
-            if (dayDate <= today) {
-                streak = 0;
-            }
-        }
-    }
-    
-    let ntChaptersRead = 0;
-    let otChaptersRead = 0;
-    
-    userCompletedDays.forEach(dayNum => {
-        const day = readingPlan[dayNum - 1];
-        if (day) {
-            if (day.ntPassages && day.ntPassages.length > 0) {
-                day.ntPassages.forEach(passage => {
-                    if (passage.chapter) {
-                        ntChaptersRead += 1;
-                    } else if (passage.startChapter && passage.endChapter) {
-                        ntChaptersRead += (passage.endChapter - passage.startChapter + 1);
-                    }
-                });
-            }
-            
-            if (day.otPassages && day.otPassages.length > 0) {
-                otChaptersRead += day.otPassages.reduce((sum, p) => 
-                    sum + (p.endChapter - p.startChapter + 1), 0);
-            }
-        }
-    });
-    
-    return {
-        completedDays,
-        totalDays,
-        percentage,
-        currentStreak: streak,
-        ntChaptersRead,
-        otChaptersRead,
-        totalChaptersRead: ntChaptersRead + otChaptersRead
-    };
-}
-
-function showToast(message, type = "info") {
-    const toast = document.getElementById('toast');
-    if (!toast) return;
-    
-    toast.textContent = message;
-    toast.className = `toast show ${type}`;
-    setTimeout(() => {
-        toast.className = 'toast';
-    }, 3000);
-}
-
-// ===== UI Rendering Functions =====
-function updateCurrentDay() {
-    readingPlan.forEach(day => day.isCurrent = false);
-    // Find the first uncompleted day
-    for (let i = 0; i < readingPlan.length; i++) {
-        if (!readingPlan[i].completed) {
-            readingPlan[i].isCurrent = true;
-            break;
-        }
-    }
+    console.log(`Stats updated: ${stats.completedDays} days, streak: ${stats.currentStreak}`);
 }
 
 function updateProgressBar() {
@@ -641,70 +355,90 @@ function updateProgressBar() {
     const totalDays = readingPlan.length;
     const percentage = (completedCount / totalDays) * 100;
     
-    document.getElementById('completed-count').textContent = completedCount;
-    document.getElementById('total-days').textContent = totalDays;
-    document.getElementById('progress-fill').style.width = `${percentage}%`;
+    const completedCountEl = document.getElementById('completed-count');
+    const totalDaysEl = document.getElementById('total-days');
+    const progressFillEl = document.getElementById('progress-fill');
+    
+    if (completedCountEl) completedCountEl.textContent = completedCount;
+    if (totalDaysEl) totalDaysEl.textContent = totalDays;
+    if (progressFillEl) progressFillEl.style.width = `${percentage}%`;
 }
 
+function updateCurrentDay() {
+    readingPlan.forEach(day => day.isCurrent = false);
+    for (let i = 0; i < readingPlan.length; i++) {
+        if (!readingPlan[i].completed) {
+            readingPlan[i].isCurrent = true;
+            break;
+        }
+    }
+}
+
+// ===== Core Toggle Function =====
+function toggleDay(dayNum) {
+    if (viewingOtherUser) {
+        showToast("Cannot edit another user's progress", "warning");
+        return;
+    }
+    
+    const day = readingPlan.find(d => d.day === dayNum);
+    if (!day) return;
+    
+    day.completed = !day.completed;
+    
+    userProgress[currentUser].completedDays = readingPlan
+        .filter(d => d.completed)
+        .map(d => d.day)
+        .sort((a, b) => a - b);
+    
+    saveAllProgress();
+    updateCurrentDay();
+    
+    renderReadingList(false);
+    updateProgressBar();
+    renderCalendar(false);
+    updateTodayHighlight(false);
+    updateStatistics(false);
+    
+    if (day.completed) {
+        showToast(`✓ Day ${dayNum} marked as read! 📖`, "success");
+    } else {
+        showToast(`Day ${dayNum} marked as unread`, "info");
+    }
+}
+
+// ===== UI Rendering =====
 function formatPassage(ntPassages, otPassages) {
     let html = '';
     
     if (ntPassages && ntPassages.length > 0) {
         html += `<div class="passage-nt">`;
         html += `<span class="testament-label NT">NT</span>`;
-        
-        ntPassages.forEach((passage, idx) => {
-            if (passage.chapter) {
-                html += `<span class="passage-book">${passage.book}</span> `;
-                html += `<span class="passage-chapter">${passage.chapter}</span>`;
-            } else if (passage.startChapter && passage.endChapter) {
-                html += `<span class="passage-book">${passage.book}</span> `;
-                if (passage.startChapter === passage.endChapter) {
-                    html += `<span class="passage-chapter">${passage.startChapter}</span>`;
-                } else {
-                    html += `<span class="passage-chapter">${passage.startChapter}-${passage.endChapter}</span>`;
-                }
+        html += `<span class="passage-text">`;
+        ntPassages.forEach((p, i) => {
+            if (p.chapter) html += `${p.book} ${p.chapter}`;
+            else if (p.startChapter && p.endChapter) {
+                if (p.startChapter === p.endChapter) html += `${p.book} ${p.startChapter}`;
+                else html += `${p.book} ${p.startChapter}-${p.endChapter}`;
             }
-            if (idx < ntPassages.length - 1) {
-                html += `<span class="passage-separator">, </span>`;
-            }
+            if (i < ntPassages.length - 1) html += `, `;
         });
-        html += `</div>`;
+        html += `</span></div>`;
     }
     
     if (otPassages && otPassages.length > 0) {
         html += `<div class="passage-ot">`;
         html += `<span class="testament-label OT">OT</span>`;
-        html += `<div class="ot-passages">`;
-        
-        otPassages.forEach((p, idx) => {
-            if (p.startChapter === p.endChapter) {
-                html += `<span class="passage-book">${p.book}</span> <span class="passage-chapter">${p.startChapter}</span>`;
-            } else {
-                html += `<span class="passage-book">${p.book}</span> <span class="passage-chapter">${p.startChapter}-${p.endChapter}</span>`;
-            }
-            if (idx < otPassages.length - 1) {
-                html += `<span class="passage-separator">, </span>`;
-            }
+        html += `<span class="passage-text">`;
+        otPassages.forEach((p, i) => {
+            if (p.startChapter === p.endChapter) html += `${p.book} ${p.startChapter}`;
+            else html += `${p.book} ${p.startChapter}-${p.endChapter}`;
+            if (i < otPassages.length - 1) html += `, `;
         });
-        html += `</div></div>`;
+        html += `</span></div>`;
     }
     
-    return html;
-}
-
-function formatDate(date) {
-    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-}
-
-function getDaySuffix(day) {
-    if (day >= 11 && day <= 13) return 'th';
-    switch (day % 10) {
-        case 1: return 'st';
-        case 2: return 'nd';
-        case 3: return 'rd';
-        default: return 'th';
-    }
+    return html || '<span class="no-reading">No reading assigned</span>';
 }
 
 function renderReadingList(viewing = false) {
@@ -714,8 +448,8 @@ function renderReadingList(viewing = false) {
     
     readingPlan.forEach(day => {
         const passageHTML = formatPassage(day.ntPassages, day.otPassages);
-        const dateText = formatDate(day.date);
-        const daySuffix = getDaySuffix(day.day);
+        const dateText = day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        const daySuffix = (day.day >= 11 && day.day <= 13) ? 'th' : ['st', 'nd', 'rd'][(day.day % 10) - 1] || 'th';
         
         const dayCard = document.createElement('div');
         dayCard.className = `day-card ${day.completed ? 'completed' : ''} ${day.isCurrent ? 'current' : ''}`;
@@ -733,9 +467,7 @@ function renderReadingList(viewing = false) {
                 </div>
             </div>
             <div class="card-middle">
-                <div class="passage-container">
-                    ${passageHTML}
-                </div>
+                <div class="passage-container">${passageHTML}</div>
                 <div class="reading-meta">
                     ${day.isCurrent ? '<span class="current-badge">Current Reading</span>' : ''}
                 </div>
@@ -744,8 +476,8 @@ function renderReadingList(viewing = false) {
                 <label class="checkbox-wrapper ${viewing ? 'disabled' : ''}">
                     <input type="checkbox" ${day.completed ? 'checked' : ''} data-day="${day.day}" ${viewing ? 'disabled' : ''}>
                     <span class="checkbox-custom">
-                        <svg class="checkbox-icon" viewBox="0 0 24 24">
-                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                        <svg class="checkbox-icon" viewBox="0 0 24 24" width="24" height="24">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="white"/>
                         </svg>
                     </span>
                 </label>
@@ -754,19 +486,20 @@ function renderReadingList(viewing = false) {
                 </div>
             </div>
         `;
-        
         container.appendChild(dayCard);
     });
     
     if (!viewing) {
         document.querySelectorAll('.checkbox-wrapper input:not([disabled])').forEach(checkbox => {
-            checkbox.addEventListener('change', (e) => {
-                e.stopPropagation();
-                const dayNum = parseInt(e.target.dataset.day);
-                toggleDay(dayNum);
-            });
+            checkbox.removeEventListener('change', handleCheckboxChange);
+            checkbox.addEventListener('change', handleCheckboxChange);
         });
     }
+}
+
+function handleCheckboxChange(e) {
+    e.stopPropagation();
+    toggleDay(parseInt(e.target.dataset.day));
 }
 
 let currentCalendarDate = new Date();
@@ -781,22 +514,21 @@ function renderCalendar(viewing = false) {
     }
     
     const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
     const startingDayOfWeek = firstDay.getDay();
-    const totalDays = lastDay.getDate();
+    const totalDays = new Date(year, month + 1, 0).getDate();
     
     const calendarDays = document.getElementById('calendar-days');
     if (!calendarDays) return;
     calendarDays.innerHTML = '';
     
     for (let i = 0; i < startingDayOfWeek; i++) {
-        const emptyDay = document.createElement('div');
-        emptyDay.className = 'calendar-day empty';
-        calendarDays.appendChild(emptyDay);
+        const empty = document.createElement('div');
+        empty.className = 'calendar-day empty';
+        calendarDays.appendChild(empty);
     }
     
     const targetUser = viewing ? otherUser : currentUser;
-    const userCompletedDays = targetUser ? userProgress[targetUser]?.completedDays : [];
+    const completedSet = new Set(targetUser ? userProgress[targetUser]?.completedDays : []);
     
     for (let day = 1; day <= totalDays; day++) {
         const date = new Date(year, month, day);
@@ -815,23 +547,9 @@ function renderCalendar(viewing = false) {
         
         if (readingDay) {
             dayElement.classList.add('has-reading');
-            if (userCompletedDays && userCompletedDays.includes(readingDay.day)) {
+            if (completedSet.has(readingDay.day)) {
                 dayElement.classList.add('completed-reading');
             }
-            
-            const ntText = readingDay.ntPassages && readingDay.ntPassages.length > 0 
-                ? readingDay.ntPassages.map(p => {
-                    if (p.chapter) return `${p.book} ${p.chapter}`;
-                    if (p.startChapter && p.endChapter) return `${p.book} ${p.startChapter}-${p.endChapter}`;
-                    return '';
-                }).join(', ') 
-                : '';
-                
-            const otText = readingDay.otPassages.map(p => 
-                `${p.book} ${p.startChapter}${p.startChapter !== p.endChapter ? '-' + p.endChapter : ''}`
-            ).join(', ');
-                
-            dayElement.setAttribute('data-tooltip', `Day ${readingDay.day}: NT: ${ntText} | OT: ${otText}`);
             dayContent += `<span class="reading-indicator"></span>`;
         }
         
@@ -866,9 +584,7 @@ function updateTodayHighlight(viewing = false) {
     
     if (todayReading) {
         const passageHTML = formatPassage(todayReading.ntPassages, todayReading.otPassages);
-        const dateText = today.toLocaleDateString('en-US', { 
-            weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
-        });
+        const dateText = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
         
         highlightElement.innerHTML = `
             <div class="today-header">
@@ -883,9 +599,7 @@ function updateTodayHighlight(viewing = false) {
                     <div class="today-day">Day ${todayReading.day}</div>
                     <div class="today-passage">${passageHTML}</div>
                 </div>
-                <button class="btn-mark-read ${isCompleted ? 'completed' : ''}" 
-                        data-day="${todayReading.day}" 
-                        ${isCompleted || viewing ? 'disabled' : ''}>
+                <button class="btn-mark-read ${isCompleted ? 'completed' : ''}" data-day="${todayReading.day}" ${isCompleted || viewing ? 'disabled' : ''}>
                     <span class="btn-icon">${isCompleted ? '✓' : '◉'}</span>
                     <span class="btn-text">${isCompleted ? 'Completed' : 'Mark as Read'}</span>
                 </button>
@@ -893,173 +607,207 @@ function updateTodayHighlight(viewing = false) {
         `;
         
         if (!viewing && !isCompleted) {
-            const markReadBtn = highlightElement.querySelector('.btn-mark-read');
-            if (markReadBtn) {
-                markReadBtn.addEventListener('click', () => toggleDay(todayReading.day));
-            }
+            const btn = highlightElement.querySelector('.btn-mark-read');
+            if (btn) btn.addEventListener('click', () => toggleDay(todayReading.day));
         }
     } else {
-        const nextReading = readingPlan.find(d => {
-            const dDate = new Date(d.date);
-            dDate.setHours(0, 0, 0, 0);
-            return dDate >= today && !userProgress[targetUser]?.completedDays.includes(d.day);
-        });
-        
-        if (nextReading) {
-            const nextDate = new Date(nextReading.date);
-            const passageHTML = formatPassage(nextReading.ntPassages, nextReading.otPassages);
-            highlightElement.innerHTML = `
-                <div class="today-header">
-                    <div class="today-icon">📅</div>
-                    <div class="today-title-section">
-                        <span class="today-label">Next Reading</span>
-                        <span class="today-full-date">${nextDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
-                    </div>
-                </div>
-                <div class="today-content">
-                    <div class="today-passage-section">
-                        <div class="today-day">Day ${nextReading.day}</div>
-                        <div class="today-passage">${passageHTML}</div>
-                    </div>
-                    <div class="today-message">📖 Coming soon</div>
-                </div>
-            `;
-        } else {
-            highlightElement.innerHTML = `
-                <div class="today-header">
-                    <div class="today-icon">🎉</div>
-                    <div class="today-title-section">
-                        <span class="today-label">Congratulations!</span>
-                        <span class="today-full-date">${today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                    </div>
-                </div>
-                <div class="today-content">
-                    <div class="today-message">You've completed the entire Bible reading plan! 🎉</div>
-                </div>
-            `;
+        highlightElement.innerHTML = `<div class="today-header"><div class="today-icon">📖</div><div class="today-title-section"><span class="today-label">Reading Plan</span></div></div>
+            <div class="today-content"><div class="today-message">Continue your daily reading journey! 📚</div></div>`;
+    }
+}
+
+// ===== User Management =====
+function showPinModal(userId) {
+    pendingUser = userId;
+    const userName = userId === 'user1' ? 'Belidet' : 'Ephi';
+    const nameEl = document.getElementById('pin-user-name');
+    if (nameEl) nameEl.textContent = userName;
+    
+    const modal = document.getElementById('pin-modal');
+    if (modal) modal.style.display = 'flex';
+    
+    const errorEl = document.getElementById('pin-error');
+    if (errorEl) errorEl.style.display = 'none';
+    
+    for (let i = 1; i <= 4; i++) {
+        const input = document.getElementById(`pin-${i}`);
+        if (input) input.value = '';
+    }
+    
+    setTimeout(() => document.getElementById('pin-1')?.focus(), 100);
+    
+    for (let i = 1; i <= 4; i++) {
+        const input = document.getElementById(`pin-${i}`);
+        if (input) {
+            input.removeEventListener('input', handlePinInput);
+            input.addEventListener('input', handlePinInput);
         }
     }
 }
 
-function initCalendarNavigation() {
-    const prevBtn = document.getElementById('prev-month');
-    const nextBtn = document.getElementById('next-month');
-    if (prevBtn) {
-        prevBtn.addEventListener('click', () => {
-            currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
-            renderCalendar(viewingOtherUser);
-        });
-    }
-    if (nextBtn) {
-        nextBtn.addEventListener('click', () => {
-            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
-            renderCalendar(viewingOtherUser);
-        });
+function handlePinInput(e) {
+    const input = e.target;
+    const id = parseInt(input.id.split('-')[1]);
+    
+    if (input.value.length === 1 && id < 4) {
+        document.getElementById(`pin-${id + 1}`)?.focus();
+    } else if (input.value.length === 1 && id === 4) {
+        setTimeout(() => verifyPin(), 100);
     }
 }
 
-function setupNotifications() {
-    if ('Notification' in window && 'serviceWorker' in navigator) {
-        const banner = document.getElementById('notification-banner');
-        
-        if (Notification.permission === 'granted') {
-            banner.classList.add('hidden');
-            scheduleDailyNotification();
-        } else if (Notification.permission !== 'denied') {
-            banner.classList.remove('hidden');
-            
-            document.getElementById('enable-notifications').addEventListener('click', async () => {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    banner.classList.add('hidden');
-                    scheduleDailyNotification();
-                }
-            });
+function getEnteredPin() {
+    let pin = '';
+    for (let i = 1; i <= 4; i++) {
+        pin += document.getElementById(`pin-${i}`)?.value || '';
+    }
+    return pin;
+}
+
+function verifyPin() {
+    const enteredPin = getEnteredPin();
+    const correctPin = USER_PINS[pendingUser];
+    
+    if (enteredPin === correctPin) {
+        document.getElementById('pin-modal').style.display = 'none';
+        completeUserSelection(pendingUser);
+    } else {
+        const errorEl = document.getElementById('pin-error');
+        if (errorEl) errorEl.style.display = 'block';
+        for (let i = 1; i <= 4; i++) {
+            const input = document.getElementById(`pin-${i}`);
+            if (input) input.value = '';
         }
+        document.getElementById('pin-1')?.focus();
     }
 }
 
-function scheduleDailyNotification() {
-    if ('serviceWorker' in navigator && 'PushManager' in window) {
-        navigator.serviceWorker.register('service-worker.js')
-            .then(registration => {
-                console.log('Service Worker registered');
-                
-                const now = new Date();
-                const notificationTime = new Date();
-                notificationTime.setHours(8, 0, 0, 0);
-                
-                if (now > notificationTime) {
-                    notificationTime.setDate(notificationTime.getDate() + 1);
-                }
-                
-                const timeUntilNotification = notificationTime - now;
-                
-                setTimeout(() => {
-                    registration.showNotification('Bible Reading - Daily Reminder', {
-                        body: 'Time for your daily Bible reading! 5 chapters today.',
-                        icon: 'icons/icon-192x192.png',
-                        badge: 'icons/icon-72x72.png',
-                        vibrate: [200, 100, 200],
-                        tag: 'daily-reading',
-                        renotify: true,
-                        actions: [
-                            { action: 'open', title: 'Open Reading' },
-                            { action: 'mark', title: 'Mark as Read' }
-                        ]
-                    });
-                    
-                    setInterval(() => {
-                        registration.showNotification('Bible Reading - Daily Reminder', {
-                            body: 'Time for your daily Bible reading! 5 chapters today.',
-                            icon: 'icons/icon-192x192.png',
-                            badge: 'icons/icon-72x72.png',
-                            vibrate: [200, 100, 200],
-                            tag: 'daily-reading',
-                            renotify: true
-                        });
-                    }, 24 * 60 * 60 * 1000);
-                }, timeUntilNotification);
-            })
-            .catch(error => {
-                console.error('Service Worker registration failed:', error);
-            });
-    }
+function cancelPinModal() {
+    document.getElementById('pin-modal').style.display = 'none';
+    pendingUser = null;
 }
 
-// Initialize app
-document.addEventListener('DOMContentLoaded', () => {
-    prePopulateProgress();
-    showUserSelector();
+function completeUserSelection(userId) {
+    currentUser = userId;
+    viewingOtherUser = false;
     
-    // User selection event listeners
-    document.getElementById('select-user1')?.addEventListener('click', () => selectUser('user1'));
-    document.getElementById('select-user2')?.addEventListener('click', () => selectUser('user2'));
+    document.getElementById('user-selector').style.display = 'none';
+    document.getElementById('app-container').style.display = 'block';
+    document.getElementById('viewing-banner').style.display = 'none';
     
-    // PIN modal event listeners
-    document.getElementById('pin-submit')?.addEventListener('click', verifyPin);
-    document.getElementById('pin-cancel')?.addEventListener('click', cancelPinModal);
+    const viewBtn = document.getElementById('view-other-btn');
+    if (viewBtn) {
+        viewBtn.textContent = `👥 View ${currentUser === 'user1' ? 'Ephi' : 'Belidet'}`;
+    }
     
-    // Close modal when clicking outside (optional)
-    document.getElementById('pin-modal')?.addEventListener('click', (e) => {
-        if (e.target === document.getElementById('pin-modal')) {
-            cancelPinModal();
-        }
+    loadUserProgress();
+    showToast(`Welcome, ${userId === 'user1' ? 'Belidet' : 'Ephi'}! ✝️`, "success");
+}
+
+function selectUser(userId) {
+    showPinModal(userId);
+}
+
+function viewOtherUser() {
+    if (!currentUser) return;
+    viewingOtherUser = true;
+    otherUser = currentUser === 'user1' ? 'user2' : 'user1';
+    
+    const banner = document.getElementById('viewing-banner');
+    if (banner) {
+        banner.style.display = 'flex';
+        const span = banner.querySelector('span');
+        if (span) span.textContent = `👁️ Viewing ${otherUser === 'user1' ? 'Belidet' : 'Ephi'}'s progress`;
+    }
+    loadUserProgress(true);
+}
+
+function switchBackToSelf() {
+    viewingOtherUser = false;
+    document.getElementById('viewing-banner').style.display = 'none';
+    loadUserProgress();
+}
+
+function switchUser() {
+    viewingOtherUser = false;
+    currentUser = null;
+    document.getElementById('app-container').style.display = 'none';
+    document.getElementById('user-selector').style.display = 'flex';
+    document.getElementById('viewing-banner').style.display = 'none';
+    showToast("Select a user", "info");
+}
+
+async function loadUserProgress(viewing = false) {
+    const targetUser = viewing ? otherUser : currentUser;
+    if (!targetUser) return;
+    
+    const completedDays = await syncProgressForUser(targetUser);
+    userProgress[targetUser].completedDays = completedDays;
+    
+    readingPlan.forEach(day => {
+        day.completed = completedDays.includes(day.day);
     });
     
-    // Main app event listeners
+    updateCurrentDay();
+    renderReadingList(viewing);
+    updateProgressBar();
+    renderCalendar(viewing);
+    updateTodayHighlight(viewing);
+    updateStatistics(viewing);
+}
+
+function showToast(message, type = "info") {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.className = `toast show ${type}`;
+    setTimeout(() => toast.className = 'toast', 3000);
+}
+
+// ===== Initialization =====
+document.addEventListener('DOMContentLoaded', () => {
+    // Check for existing progress
+    const existing = localStorage.getItem('bible-reading-user1');
+    if (!existing) {
+        // Pre-populate days 1-3
+        const preCompleted = [1, 2, 3];
+        userProgress.user1.completedDays = [...preCompleted];
+        userProgress.user2.completedDays = [...preCompleted];
+        preCompleted.forEach(day => {
+            if (readingPlan[day - 1]) readingPlan[day - 1].completed = true;
+        });
+        saveLocalProgress('user1', preCompleted);
+        saveLocalProgress('user2', preCompleted);
+    }
+    
+    // Event listeners
+    document.getElementById('select-user1')?.addEventListener('click', () => selectUser('user1'));
+    document.getElementById('select-user2')?.addEventListener('click', () => selectUser('user2'));
+    document.getElementById('pin-submit')?.addEventListener('click', verifyPin);
+    document.getElementById('pin-cancel')?.addEventListener('click', cancelPinModal);
     document.getElementById('view-other-btn')?.addEventListener('click', viewOtherUser);
     document.getElementById('back-to-self-btn')?.addEventListener('click', switchBackToSelf);
     document.getElementById('switch-user-btn')?.addEventListener('click', switchUser);
     
-    initCalendarNavigation();
-    setupNotifications();
+    // Calendar navigation
+    document.getElementById('prev-month')?.addEventListener('click', () => {
+        currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+        renderCalendar(viewingOtherUser);
+    });
+    document.getElementById('next-month')?.addEventListener('click', () => {
+        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+        renderCalendar(viewingOtherUser);
+    });
     
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('service-worker.js').catch(error => {
-                console.error('Service Worker registration failed:', error);
-            });
-        });
-    }
+    // PIN modal close on outside click
+    document.getElementById('pin-modal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('pin-modal')) cancelPinModal();
+    });
+    
+    // Enter key support for PIN
+    document.addEventListener('keydown', (e) => {
+        if (document.getElementById('pin-modal')?.style.display === 'flex' && e.key === 'Enter') {
+            verifyPin();
+        }
+    });
 });
