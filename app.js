@@ -234,13 +234,13 @@ async function syncProgressForUser(userId) {
     const localDays = loadLocalProgress(userId);
     
     if (cloudDays && cloudDays.length > 0) {
-        if (cloudDays.length > localDays.length) {
+        // Use cloud if it has more days, otherwise use local
+        if (cloudDays.length >= localDays.length) {
             return cloudDays;
-        } else if (localDays.length > cloudDays.length) {
+        } else {
             await saveProgressToCloud(userId, localDays, true);
             return localDays;
         }
-        return cloudDays;
     }
     return localDays;
 }
@@ -250,25 +250,21 @@ function saveAllProgress() {
         saveLocalProgress(currentUser, userProgress[currentUser].completedDays);
         saveProgressToCloud(currentUser, userProgress[currentUser].completedDays);
     }
-    if (currentUser === 'user1') {
-        saveLocalProgress('user2', userProgress.user2.completedDays);
-    } else if (currentUser === 'user2') {
-        saveLocalProgress('user1', userProgress.user1.completedDays);
-    }
 }
 
-// ===== Statistics Functions =====
+// ===== FIXED: Statistics Functions =====
 function calculateStatistics(userId) {
     const completedDaysArray = userProgress[userId].completedDays;
     const completedCount = completedDaysArray.length;
     const totalDays = readingPlan.length;
-    const percentage = Math.round((completedCount / totalDays) * 100);
+    const percentage = totalDays > 0 ? Math.round((completedCount / totalDays) * 100) : 0;
     
-    // Calculate current streak
+    // FIXED: Calculate current streak correctly
     let currentStreak = 0;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
+    // Find today's day number
     let todayDayNum = null;
     for (const day of readingPlan) {
         const dayDate = new Date(day.date);
@@ -280,6 +276,7 @@ function calculateStatistics(userId) {
     }
     
     if (todayDayNum) {
+        // Check from today backwards
         for (let d = todayDayNum; d >= 1; d--) {
             if (completedDaysArray.includes(d)) {
                 currentStreak++;
@@ -288,11 +285,13 @@ function calculateStatistics(userId) {
             }
         }
     } else if (completedDaysArray.length > 0) {
+        // If no reading for today, check the most recent completed day
         const sorted = [...completedDaysArray].sort((a, b) => b - a);
         let expected = sorted[0];
         while (completedDaysArray.includes(expected)) {
             currentStreak++;
             expected--;
+            if (expected < 1) break;
         }
     }
     
@@ -344,7 +343,7 @@ function updateStatistics(viewing = false) {
     if (otReadEl) otReadEl.textContent = stats.otChaptersRead;
     if (totalChaptersEl) totalChaptersEl.textContent = stats.totalChaptersRead;
     
-    console.log(`Stats updated: ${stats.completedDays} days, streak: ${stats.currentStreak}`);
+    console.log(`Stats updated: ${stats.completedDays} days completed, streak: ${stats.currentStreak}`);
 }
 
 function updateProgressBar() {
@@ -353,7 +352,7 @@ function updateProgressBar() {
     
     const completedCount = userProgress[targetUser].completedDays.length;
     const totalDays = readingPlan.length;
-    const percentage = (completedCount / totalDays) * 100;
+    const percentage = totalDays > 0 ? (completedCount / totalDays) * 100 : 0;
     
     const completedCountEl = document.getElementById('completed-count');
     const totalDaysEl = document.getElementById('total-days');
@@ -381,24 +380,40 @@ function toggleDay(dayNum) {
         return;
     }
     
+    if (!currentUser) {
+        showToast("No user selected", "error");
+        return;
+    }
+    
     const day = readingPlan.find(d => d.day === dayNum);
     if (!day) return;
     
+    // Toggle completion
     day.completed = !day.completed;
     
+    // Update user progress array
     userProgress[currentUser].completedDays = readingPlan
         .filter(d => d.completed)
         .map(d => d.day)
         .sort((a, b) => a - b);
     
+    // Save to storage
     saveAllProgress();
-    updateCurrentDay();
     
+    // Update UI
+    updateCurrentDay();
     renderReadingList(false);
     updateProgressBar();
     renderCalendar(false);
     updateTodayHighlight(false);
     updateStatistics(false);
+    
+    // Visual feedback
+    const card = document.querySelector(`.day-card[data-day="${dayNum}"]`);
+    if (card) {
+        card.style.transform = 'scale(0.98)';
+        setTimeout(() => card.style.transform = '', 150);
+    }
     
     if (day.completed) {
         showToast(`✓ Day ${dayNum} marked as read! 📖`, "success");
@@ -608,12 +623,21 @@ function updateTodayHighlight(viewing = false) {
         
         if (!viewing && !isCompleted) {
             const btn = highlightElement.querySelector('.btn-mark-read');
-            if (btn) btn.addEventListener('click', () => toggleDay(todayReading.day));
+            if (btn) {
+                btn.removeEventListener('click', handleTodayClick);
+                btn.addEventListener('click', handleTodayClick);
+            }
         }
     } else {
         highlightElement.innerHTML = `<div class="today-header"><div class="today-icon">📖</div><div class="today-title-section"><span class="today-label">Reading Plan</span></div></div>
             <div class="today-content"><div class="today-message">Continue your daily reading journey! 📚</div></div>`;
     }
+}
+
+function handleTodayClick(e) {
+    const btn = e.currentTarget;
+    const dayNum = parseInt(btn.dataset.day);
+    toggleDay(dayNum);
 }
 
 // ===== User Management =====
@@ -754,6 +778,8 @@ async function loadUserProgress(viewing = false) {
     renderCalendar(viewing);
     updateTodayHighlight(viewing);
     updateStatistics(viewing);
+    
+    console.log(`Loaded progress for ${targetUser}: ${completedDays.length} days completed`);
 }
 
 function showToast(message, type = "info") {
@@ -765,11 +791,13 @@ function showToast(message, type = "info") {
 }
 
 // ===== Initialization =====
-document.addEventListener('DOMContentLoaded', () => {
-    // Check for existing progress
-    const existing = localStorage.getItem('bible-reading-user1');
-    if (!existing) {
-        // Pre-populate days 1-3
+document.addEventListener('DOMContentLoaded', async () => {
+    // Load existing progress from localStorage first
+    const existing1 = loadLocalProgress('user1');
+    const existing2 = loadLocalProgress('user2');
+    
+    if (existing1.length === 0 && existing2.length === 0) {
+        // Only pre-populate if no data exists
         const preCompleted = [1, 2, 3];
         userProgress.user1.completedDays = [...preCompleted];
         userProgress.user2.completedDays = [...preCompleted];
@@ -778,6 +806,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         saveLocalProgress('user1', preCompleted);
         saveLocalProgress('user2', preCompleted);
+        console.log('Pre-populated days 1-3');
+    } else {
+        // Load existing data
+        userProgress.user1.completedDays = existing1;
+        userProgress.user2.completedDays = existing2;
+        existing1.forEach(day => {
+            if (readingPlan[day - 1]) readingPlan[day - 1].completed = true;
+        });
+        existing2.forEach(day => {
+            if (readingPlan[day - 1]) readingPlan[day - 1].completed = true;
+        });
+        console.log(`Loaded existing data: User1: ${existing1.length}, User2: ${existing2.length}`);
     }
     
     // Event listeners
