@@ -5,7 +5,8 @@
 // ===== User PIN Codes =====
 const USER_PINS = {
     user1: "2721",  // Belidet's PIN
-    user2: "2324"   // Ephi's PIN
+    user2: "2324",  // Ephi's PIN
+    user3: "2912"   // Sari's PIN
 };
 
 // ===== Vercel Blob Cloud Storage Integration =====
@@ -23,7 +24,8 @@ let pendingUser = null;
 // Progress storage
 let userProgress = {
     user1: { completedDays: [], name: "Belidet" },
-    user2: { completedDays: [], name: "Ephi" }
+    user2: { completedDays: [], name: "Ephi" },
+    user3: { completedDays: [], name: "Sari" }
 };
 
 // ===== New Testament & Old Testament Bible Data =====
@@ -643,7 +645,11 @@ function handleTodayClick(e) {
 // ===== User Management =====
 function showPinModal(userId) {
     pendingUser = userId;
-    const userName = userId === 'user1' ? 'Belidet' : 'Ephi';
+    let userName = "";
+    if (userId === 'user1') userName = "Belidet";
+    else if (userId === 'user2') userName = "Ephi";
+    else if (userId === 'user3') userName = "Sari";
+    
     const nameEl = document.getElementById('pin-user-name');
     if (nameEl) nameEl.textContent = userName;
     
@@ -721,11 +727,19 @@ function completeUserSelection(userId) {
     
     const viewBtn = document.getElementById('view-other-btn');
     if (viewBtn) {
-        viewBtn.textContent = `👥 View ${currentUser === 'user1' ? 'Ephi' : 'Belidet'}`;
+        if (currentUser === 'user1') viewBtn.textContent = `👥 View Ephi`;
+        else if (currentUser === 'user2') viewBtn.textContent = `👥 View Belidet`;
+        else if (currentUser === 'user3') viewBtn.textContent = `👥 View Others`;
     }
     
     loadUserProgress();
-    showToast(`Welcome, ${userId === 'user1' ? 'Belidet' : 'Ephi'}! ✝️`, "success");
+    
+    let welcomeName = "";
+    if (userId === 'user1') welcomeName = "Belidet";
+    else if (userId === 'user2') welcomeName = "Ephi";
+    else if (userId === 'user3') welcomeName = "Sari";
+    
+    showToast(`Welcome, ${welcomeName}! ✝️`, "success");
 }
 
 function selectUser(userId) {
@@ -735,25 +749,46 @@ function selectUser(userId) {
 function viewOtherUser() {
     if (!currentUser) return;
     viewingOtherUser = true;
-    otherUser = currentUser === 'user1' ? 'user2' : 'user1';
+    
+    // Cycle through other users
+    const users = ['user1', 'user2', 'user3'];
+    const currentIndex = users.indexOf(currentUser);
+    const otherUsers = users.filter(u => u !== currentUser);
+    
+    // If currently viewing someone, switch to next
+    if (otherUser) {
+        const currentOtherIndex = otherUsers.indexOf(otherUser);
+        const nextIndex = (currentOtherIndex + 1) % otherUsers.length;
+        otherUser = otherUsers[nextIndex];
+    } else {
+        otherUser = otherUsers[0];
+    }
     
     const banner = document.getElementById('viewing-banner');
     if (banner) {
         banner.style.display = 'flex';
         const span = banner.querySelector('span');
-        if (span) span.textContent = `👁️ Viewing ${otherUser === 'user1' ? 'Belidet' : 'Ephi'}'s progress`;
+        if (span) {
+            let otherName = "";
+            if (otherUser === 'user1') otherName = "Belidet";
+            else if (otherUser === 'user2') otherName = "Ephi";
+            else if (otherUser === 'user3') otherName = "Sari";
+            span.textContent = `👁️ Viewing ${otherName}'s progress`;
+        }
     }
     loadUserProgress(true);
 }
 
 function switchBackToSelf() {
     viewingOtherUser = false;
+    otherUser = null;
     document.getElementById('viewing-banner').style.display = 'none';
     loadUserProgress();
 }
 
 function switchUser() {
     viewingOtherUser = false;
+    otherUser = null;
     currentUser = null;
     document.getElementById('app-container').style.display = 'none';
     document.getElementById('user-selector').style.display = 'flex';
@@ -795,9 +830,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Load existing progress from localStorage first
     const existing1 = loadLocalProgress('user1');
     const existing2 = loadLocalProgress('user2');
+    const existing3 = loadLocalProgress('user3');
     
+    // Only pre-populate for user1 and user2 if they have no data
+    // User3 (Sari) starts fresh with no pre-populated days
     if (existing1.length === 0 && existing2.length === 0) {
-        // Only pre-populate if no data exists
+        // Only pre-populate days 1-3 for user1 and user2
         const preCompleted = [1, 2, 3];
         userProgress.user1.completedDays = [...preCompleted];
         userProgress.user2.completedDays = [...preCompleted];
@@ -806,9 +844,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         saveLocalProgress('user1', preCompleted);
         saveLocalProgress('user2', preCompleted);
-        console.log('Pre-populated days 1-3');
+        console.log('Pre-populated days 1-3 for Belidet and Ephi');
     } else {
-        // Load existing data
+        // Load existing data for user1 and user2
         userProgress.user1.completedDays = existing1;
         userProgress.user2.completedDays = existing2;
         existing1.forEach(day => {
@@ -820,9 +858,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log(`Loaded existing data: User1: ${existing1.length}, User2: ${existing2.length}`);
     }
     
-    // Event listeners
+    // Load Sari's data (should be empty - fresh start)
+    userProgress.user3.completedDays = existing3;
+    existing3.forEach(day => {
+        if (readingPlan[day - 1]) readingPlan[day - 1].completed = true;
+    });
+    console.log(`Loaded Sari's data: ${existing3.length} days completed (fresh start)`);
+    
+    // Reset completion flags for all days before applying all users' data
+    // This ensures the reading list shows completion status for the current user correctly
+    
+    // Event listeners - add user3 button
     document.getElementById('select-user1')?.addEventListener('click', () => selectUser('user1'));
     document.getElementById('select-user2')?.addEventListener('click', () => selectUser('user2'));
+    document.getElementById('select-user3')?.addEventListener('click', () => selectUser('user3'));
     document.getElementById('pin-submit')?.addEventListener('click', verifyPin);
     document.getElementById('pin-cancel')?.addEventListener('click', cancelPinModal);
     document.getElementById('view-other-btn')?.addEventListener('click', viewOtherUser);
