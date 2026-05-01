@@ -13,7 +13,12 @@ export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
       const { user } = req.query;
-      const userId = user === 'user2' ? 'user2' : 'user1';
+      // Support for all three users: user1 (Belidet), user2 (Ephi), user3 (Sari)
+      let userId = 'user1';
+      if (user === 'user2') userId = 'user2';
+      else if (user === 'user3') userId = 'user3';
+      else if (user === 'user1') userId = 'user1';
+      
       const fileName = `bible-reading-${userId}.json`;
       
       const { blobs } = await list();
@@ -31,11 +36,16 @@ export default async function handler(req, res) {
 
     if (req.method === 'POST') {
       const { completedDays, userId } = req.body;
-      const targetUser = userId === 'user2' ? 'user2' : 'user1';
+      // Support for all three users
+      let targetUser = 'user1';
+      if (userId === 'user2') targetUser = 'user2';
+      else if (userId === 'user3') targetUser = 'user3';
+      else targetUser = 'user1';
+      
       const fileName = `bible-reading-${targetUser}.json`;
       
       const blob = await put(fileName, JSON.stringify({ 
-        completedDays,
+        completedDays: completedDays || [],
         lastUpdated: new Date().toISOString(),
         userId: targetUser
       }), {
@@ -52,13 +62,19 @@ export default async function handler(req, res) {
       const { blobs } = await list();
       
       if (user === 'all') {
+        // Delete all user progress files
         for (const blob of blobs) {
           if (blob.pathname.startsWith('bible-reading-')) {
             await del(blob.url);
           }
         }
       } else {
-        const userId = user === 'user2' ? 'user2' : 'user1';
+        // Delete specific user's progress
+        let userId = 'user1';
+        if (user === 'user2') userId = 'user2';
+        else if (user === 'user3') userId = 'user3';
+        else if (user === 'user1') userId = 'user1';
+        
         const fileName = `bible-reading-${userId}.json`;
         const targetBlob = blobs.find(blob => blob.pathname === fileName);
         
