@@ -33,6 +33,7 @@
             min-height: 60vh;
             align-items: center;
             background: linear-gradient(135deg, #f5f0e8 0%, #e8e0d4 100%);
+            flex-wrap: wrap;
         }
         
         .user-card {
@@ -368,6 +369,39 @@
             transform: scale(1.02);
         }
         
+        @media (max-width: 768px) {
+            .user-selector {
+                gap: 1rem;
+                padding: 2rem 1rem;
+            }
+            
+            .user-card {
+                width: 180px;
+                padding: 1.5rem;
+            }
+            
+            .user-avatar {
+                width: 80px;
+                height: 80px;
+                font-size: 2.8rem;
+            }
+            
+            .user-name {
+                font-size: 1.2rem;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .user-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .user-card {
+                width: 240px;
+            }
+        }
+        
         @media (max-width: 480px) {
             .pin-digit {
                 width: 45px;
@@ -398,6 +432,16 @@
             <div class="user-name">Ephi</div>
             <div class="pin-hint">🔒 PIN protected</div>
             <p>Ephi's Progress</p>
+        </div>
+        
+        <!-- Sari -->
+        <div class="user-card" id="select-user3">
+            <div class="user-avatar">
+                📖
+            </div>
+            <div class="user-name">Sari</div>
+            <div class="pin-hint">🔒 PIN protected</div>
+            <p>Sari's Progress</p>
         </div>
     </div>
     
