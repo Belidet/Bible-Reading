@@ -671,18 +671,43 @@ function showPinModal(userId) {
         if (input) {
             input.removeEventListener('input', handlePinInput);
             input.addEventListener('input', handlePinInput);
+            // Also add keydown event for backspace
+            input.removeEventListener('keydown', handlePinKeyDown);
+            input.addEventListener('keydown', handlePinKeyDown);
         }
     }
 }
 
+// NEW: Handle keydown events for backspace/delete
+function handlePinKeyDown(e) {
+    const input = e.target;
+    const id = parseInt(input.id.split('-')[1]);
+    
+    // Check if backspace is pressed and current input is empty
+    if (e.key === 'Backspace' && input.value.length === 0 && id > 1) {
+        e.preventDefault();
+        const prevInput = document.getElementById(`pin-${id - 1}`);
+        if (prevInput) {
+            prevInput.focus();
+            prevInput.value = '';
+        }
+    }
+}
+
+// FIXED: Handle PIN input with backspace support
 function handlePinInput(e) {
     const input = e.target;
     const id = parseInt(input.id.split('-')[1]);
     
-    if (input.value.length === 1 && id < 4) {
-        document.getElementById(`pin-${id + 1}`)?.focus();
-    } else if (input.value.length === 1 && id === 4) {
-        setTimeout(() => verifyPin(), 100);
+    // If user types a digit
+    if (input.value.length === 1) {
+        if (id < 4) {
+            // Move to next input
+            document.getElementById(`pin-${id + 1}`)?.focus();
+        } else if (id === 4) {
+            // Auto-verify when last digit is entered
+            setTimeout(() => verifyPin(), 100);
+        }
     }
 }
 
@@ -864,9 +889,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (readingPlan[day - 1]) readingPlan[day - 1].completed = true;
     });
     console.log(`Loaded Sari's data: ${existing3.length} days completed (fresh start)`);
-    
-    // Reset completion flags for all days before applying all users' data
-    // This ensures the reading list shows completion status for the current user correctly
     
     // Event listeners - add user3 button
     document.getElementById('select-user1')?.addEventListener('click', () => selectUser('user1'));
