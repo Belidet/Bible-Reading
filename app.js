@@ -745,6 +745,7 @@ function cancelPinModal() {
 function completeUserSelection(userId) {
     currentUser = userId;
     viewingOtherUser = false;
+    otherUser = null; // Reset other user when switching to self
     
     document.getElementById('user-selector').style.display = 'none';
     document.getElementById('app-container').style.display = 'block';
@@ -752,9 +753,13 @@ function completeUserSelection(userId) {
     
     const viewBtn = document.getElementById('view-other-btn');
     if (viewBtn) {
-        if (currentUser === 'user1') viewBtn.textContent = `👥 View Ephi`;
-        else if (currentUser === 'user2') viewBtn.textContent = `👥 View Belidet`;
-        else if (currentUser === 'user3') viewBtn.textContent = `👥 View Others`;
+        if (currentUser === 'user1') {
+            viewBtn.textContent = `👥 View Ephi`;
+        } else if (currentUser === 'user2') {
+            viewBtn.textContent = `👥 View Others (Belidet/Sari)`;
+        } else if (currentUser === 'user3') {
+            viewBtn.textContent = `👥 View Ephi`;
+        }
     }
     
     loadUserProgress();
@@ -771,22 +776,43 @@ function selectUser(userId) {
     showPinModal(userId);
 }
 
+// FIXED: View Other User function with custom permissions
 function viewOtherUser() {
     if (!currentUser) return;
     viewingOtherUser = true;
     
-    // Cycle through other users
-    const users = ['user1', 'user2', 'user3'];
-    const currentIndex = users.indexOf(currentUser);
-    const otherUsers = users.filter(u => u !== currentUser);
+    // Define viewing permissions for each user
+    // Sari (user3) can ONLY view Ephi (user2)
+    // Ephi (user2) can view BOTH Belidet (user1) and Sari (user3) - cycles through
+    // Belidet (user1) can view Ephi (user2) only
     
-    // If currently viewing someone, switch to next
-    if (otherUser) {
-        const currentOtherIndex = otherUsers.indexOf(otherUser);
-        const nextIndex = (currentOtherIndex + 1) % otherUsers.length;
-        otherUser = otherUsers[nextIndex];
+    let availableUsers = [];
+    
+    if (currentUser === 'user1') {
+        // Belidet can only view Ephi
+        availableUsers = ['user2'];
+    } else if (currentUser === 'user2') {
+        // Ephi can view Belidet and Sari (cycles through both)
+        availableUsers = ['user1', 'user3'];
+    } else if (currentUser === 'user3') {
+        // Sari can only view Ephi
+        availableUsers = ['user2'];
+    }
+    
+    // If no users available to view, show message and return
+    if (availableUsers.length === 0) {
+        showToast("No other users available to view", "warning");
+        viewingOtherUser = false;
+        return;
+    }
+    
+    // If currently viewing someone, switch to next in the available list
+    if (otherUser && availableUsers.includes(otherUser)) {
+        const currentOtherIndex = availableUsers.indexOf(otherUser);
+        const nextIndex = (currentOtherIndex + 1) % availableUsers.length;
+        otherUser = availableUsers[nextIndex];
     } else {
-        otherUser = otherUsers[0];
+        otherUser = availableUsers[0];
     }
     
     const banner = document.getElementById('viewing-banner');
@@ -799,6 +825,20 @@ function viewOtherUser() {
             else if (otherUser === 'user2') otherName = "Ephi";
             else if (otherUser === 'user3') otherName = "Sari";
             span.textContent = `👁️ Viewing ${otherName}'s progress`;
+            
+            // Remove existing hint if any
+            const existingHint = span.querySelector('small');
+            if (existingHint) existingHint.remove();
+            
+            // Add hint about cycling if multiple users available
+            if (availableUsers.length > 1) {
+                const hint = document.createElement('small');
+                hint.style.fontSize = '0.7rem';
+                hint.style.marginLeft = '0.5rem';
+                hint.style.opacity = '0.8';
+                hint.textContent = '(click again to cycle)';
+                span.appendChild(hint);
+            }
         }
     }
     loadUserProgress(true);
@@ -861,64 +901,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     // User3 (Sari) starts fresh with no pre-populated days
     if (existing1.length === 0 && existing2.length === 0) {
         // Only pre-populate days 1-3 for user1 and user2
-        const preCompleted = [1, 2, 3];
-        userProgress.user1.completedDays = [...preCompleted];
-        userProgress.user2.completedDays = [...preCompleted];
-        preCompleted.forEach(day => {
-            if (readingPlan[day - 1]) readingPlan[day - 1].completed = true;
-        });
-        saveLocalProgress('user1', preCompleted);
-        saveLocalProgress('user2', preCompleted);
-        console.log('Pre-populated days 1-3 for Belidet and Ephi');
-    } else {
-        // Load existing data for user1 and user2
-        userProgress.user1.completedDays = existing1;
-        userProgress.user2.completedDays = existing2;
-        existing1.forEach(day => {
-            if (readingPlan[day - 1]) readingPlan[day - 1].completed = true;
-        });
-        existing2.forEach(day => {
-            if (readingPlan[day - 1]) readingPlan[day - 1].completed = true;
-        });
-        console.log(`Loaded existing data: User1: ${existing1.length}, User2: ${existing2.length}`);
-    }
-    
-    // Load Sari's data (should be empty - fresh start)
-    userProgress.user3.completedDays = existing3;
-    existing3.forEach(day => {
-        if (readingPlan[day - 1]) readingPlan[day - 1].completed = true;
-    });
-    console.log(`Loaded Sari's data: ${existing3.length} days completed (fresh start)`);
-    
-    // Event listeners - add user3 button
-    document.getElementById('select-user1')?.addEventListener('click', () => selectUser('user1'));
-    document.getElementById('select-user2')?.addEventListener('click', () => selectUser('user2'));
-    document.getElementById('select-user3')?.addEventListener('click', () => selectUser('user3'));
-    document.getElementById('pin-submit')?.addEventListener('click', verifyPin);
-    document.getElementById('pin-cancel')?.addEventListener('click', cancelPinModal);
-    document.getElementById('view-other-btn')?.addEventListener('click', viewOtherUser);
-    document.getElementById('back-to-self-btn')?.addEventListener('click', switchBackToSelf);
-    document.getElementById('switch-user-btn')?.addEventListener('click', switchUser);
-    
-    // Calendar navigation
-    document.getElementById('prev-month')?.addEventListener('click', () => {
-        currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
-        renderCalendar(viewingOtherUser);
-    });
-    document.getElementById('next-month')?.addEventListener('click', () => {
-        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
-        renderCalendar(viewingOtherUser);
-    });
-    
-    // PIN modal close on outside click
-    document.getElementById('pin-modal')?.addEventListener('click', (e) => {
-        if (e.target === document.getElementById('pin-modal')) cancelPinModal();
-    });
-    
-    // Enter key support for PIN
-    document.addEventListener('keydown', (e) => {
-        if (document.getElementById('pin-modal')?.style.display === 'flex' && e.key === 'Enter') {
-            verifyPin();
-        }
-    });
-});
+        const preCompleted =
