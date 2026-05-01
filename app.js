@@ -236,7 +236,6 @@ async function syncProgressForUser(userId) {
     const localDays = loadLocalProgress(userId);
     
     if (cloudDays && cloudDays.length > 0) {
-        // Use cloud if it has more days, otherwise use local
         if (cloudDays.length >= localDays.length) {
             return cloudDays;
         } else {
@@ -254,19 +253,17 @@ function saveAllProgress() {
     }
 }
 
-// ===== FIXED: Statistics Functions =====
+// ===== Statistics Functions =====
 function calculateStatistics(userId) {
     const completedDaysArray = userProgress[userId].completedDays;
     const completedCount = completedDaysArray.length;
     const totalDays = readingPlan.length;
     const percentage = totalDays > 0 ? Math.round((completedCount / totalDays) * 100) : 0;
     
-    // FIXED: Calculate current streak correctly
     let currentStreak = 0;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    // Find today's day number
     let todayDayNum = null;
     for (const day of readingPlan) {
         const dayDate = new Date(day.date);
@@ -278,7 +275,6 @@ function calculateStatistics(userId) {
     }
     
     if (todayDayNum) {
-        // Check from today backwards
         for (let d = todayDayNum; d >= 1; d--) {
             if (completedDaysArray.includes(d)) {
                 currentStreak++;
@@ -287,7 +283,6 @@ function calculateStatistics(userId) {
             }
         }
     } else if (completedDaysArray.length > 0) {
-        // If no reading for today, check the most recent completed day
         const sorted = [...completedDaysArray].sort((a, b) => b - a);
         let expected = sorted[0];
         while (completedDaysArray.includes(expected)) {
@@ -297,7 +292,6 @@ function calculateStatistics(userId) {
         }
     }
     
-    // Calculate NT/OT chapters
     let ntChaptersRead = 0;
     let otChaptersRead = 0;
     
@@ -344,8 +338,6 @@ function updateStatistics(viewing = false) {
     if (ntReadEl) ntReadEl.textContent = stats.ntChaptersRead;
     if (otReadEl) otReadEl.textContent = stats.otChaptersRead;
     if (totalChaptersEl) totalChaptersEl.textContent = stats.totalChaptersRead;
-    
-    console.log(`Stats updated: ${stats.completedDays} days completed, streak: ${stats.currentStreak}`);
 }
 
 function updateProgressBar() {
@@ -375,7 +367,6 @@ function updateCurrentDay() {
     }
 }
 
-// ===== Core Toggle Function =====
 function toggleDay(dayNum) {
     if (viewingOtherUser) {
         showToast("Cannot edit another user's progress", "warning");
@@ -390,19 +381,15 @@ function toggleDay(dayNum) {
     const day = readingPlan.find(d => d.day === dayNum);
     if (!day) return;
     
-    // Toggle completion
     day.completed = !day.completed;
     
-    // Update user progress array
     userProgress[currentUser].completedDays = readingPlan
         .filter(d => d.completed)
         .map(d => d.day)
         .sort((a, b) => a - b);
     
-    // Save to storage
     saveAllProgress();
     
-    // Update UI
     updateCurrentDay();
     renderReadingList(false);
     updateProgressBar();
@@ -410,7 +397,6 @@ function toggleDay(dayNum) {
     updateTodayHighlight(false);
     updateStatistics(false);
     
-    // Visual feedback
     const card = document.querySelector(`.day-card[data-day="${dayNum}"]`);
     if (card) {
         card.style.transform = 'scale(0.98)';
@@ -424,7 +410,6 @@ function toggleDay(dayNum) {
     }
 }
 
-// ===== UI Rendering =====
 function formatPassage(ntPassages, otPassages) {
     let html = '';
     
@@ -671,19 +656,16 @@ function showPinModal(userId) {
         if (input) {
             input.removeEventListener('input', handlePinInput);
             input.addEventListener('input', handlePinInput);
-            // Also add keydown event for backspace
             input.removeEventListener('keydown', handlePinKeyDown);
             input.addEventListener('keydown', handlePinKeyDown);
         }
     }
 }
 
-// NEW: Handle keydown events for backspace/delete
 function handlePinKeyDown(e) {
     const input = e.target;
     const id = parseInt(input.id.split('-')[1]);
     
-    // Check if backspace is pressed and current input is empty
     if (e.key === 'Backspace' && input.value.length === 0 && id > 1) {
         e.preventDefault();
         const prevInput = document.getElementById(`pin-${id - 1}`);
@@ -694,18 +676,14 @@ function handlePinKeyDown(e) {
     }
 }
 
-// FIXED: Handle PIN input with backspace support
 function handlePinInput(e) {
     const input = e.target;
     const id = parseInt(input.id.split('-')[1]);
     
-    // If user types a digit
     if (input.value.length === 1) {
         if (id < 4) {
-            // Move to next input
             document.getElementById(`pin-${id + 1}`)?.focus();
         } else if (id === 4) {
-            // Auto-verify when last digit is entered
             setTimeout(() => verifyPin(), 100);
         }
     }
@@ -745,7 +723,7 @@ function cancelPinModal() {
 function completeUserSelection(userId) {
     currentUser = userId;
     viewingOtherUser = false;
-    otherUser = null; // Reset other user when switching to self
+    otherUser = null;
     
     document.getElementById('user-selector').style.display = 'none';
     document.getElementById('app-container').style.display = 'block';
@@ -776,37 +754,26 @@ function selectUser(userId) {
     showPinModal(userId);
 }
 
-// FIXED: View Other User function with custom permissions
 function viewOtherUser() {
     if (!currentUser) return;
     viewingOtherUser = true;
     
-    // Define viewing permissions for each user
-    // Sari (user3) can ONLY view Ephi (user2)
-    // Ephi (user2) can view BOTH Belidet (user1) and Sari (user3) - cycles through
-    // Belidet (user1) can view Ephi (user2) only
-    
     let availableUsers = [];
     
     if (currentUser === 'user1') {
-        // Belidet can only view Ephi
         availableUsers = ['user2'];
     } else if (currentUser === 'user2') {
-        // Ephi can view Belidet and Sari (cycles through both)
         availableUsers = ['user1', 'user3'];
     } else if (currentUser === 'user3') {
-        // Sari can only view Ephi
         availableUsers = ['user2'];
     }
     
-    // If no users available to view, show message and return
     if (availableUsers.length === 0) {
         showToast("No other users available to view", "warning");
         viewingOtherUser = false;
         return;
     }
     
-    // If currently viewing someone, switch to next in the available list
     if (otherUser && availableUsers.includes(otherUser)) {
         const currentOtherIndex = availableUsers.indexOf(otherUser);
         const nextIndex = (currentOtherIndex + 1) % availableUsers.length;
@@ -826,11 +793,9 @@ function viewOtherUser() {
             else if (otherUser === 'user3') otherName = "Sari";
             span.textContent = `👁️ Viewing ${otherName}'s progress`;
             
-            // Remove existing hint if any
             const existingHint = span.querySelector('small');
             if (existingHint) existingHint.remove();
             
-            // Add hint about cycling if multiple users available
             if (availableUsers.length > 1) {
                 const hint = document.createElement('small');
                 hint.style.fontSize = '0.7rem';
@@ -878,8 +843,6 @@ async function loadUserProgress(viewing = false) {
     renderCalendar(viewing);
     updateTodayHighlight(viewing);
     updateStatistics(viewing);
-    
-    console.log(`Loaded progress for ${targetUser}: ${completedDays.length} days completed`);
 }
 
 function showToast(message, type = "info") {
@@ -892,13 +855,60 @@ function showToast(message, type = "info") {
 
 // ===== Initialization =====
 document.addEventListener('DOMContentLoaded', async () => {
-    // Load existing progress from localStorage first
     const existing1 = loadLocalProgress('user1');
     const existing2 = loadLocalProgress('user2');
     const existing3 = loadLocalProgress('user3');
     
-    // Only pre-populate for user1 and user2 if they have no data
-    // User3 (Sari) starts fresh with no pre-populated days
     if (existing1.length === 0 && existing2.length === 0) {
-        // Only pre-populate days 1-3 for user1 and user2
-        const preCompleted =
+        const preCompleted = [1, 2, 3];
+        userProgress.user1.completedDays = [...preCompleted];
+        userProgress.user2.completedDays = [...preCompleted];
+        preCompleted.forEach(day => {
+            if (readingPlan[day - 1]) readingPlan[day - 1].completed = true;
+        });
+        saveLocalProgress('user1', preCompleted);
+        saveLocalProgress('user2', preCompleted);
+    } else {
+        userProgress.user1.completedDays = existing1;
+        userProgress.user2.completedDays = existing2;
+        existing1.forEach(day => {
+            if (readingPlan[day - 1]) readingPlan[day - 1].completed = true;
+        });
+        existing2.forEach(day => {
+            if (readingPlan[day - 1]) readingPlan[day - 1].completed = true;
+        });
+    }
+    
+    userProgress.user3.completedDays = existing3;
+    existing3.forEach(day => {
+        if (readingPlan[day - 1]) readingPlan[day - 1].completed = true;
+    });
+    
+    document.getElementById('select-user1')?.addEventListener('click', () => selectUser('user1'));
+    document.getElementById('select-user2')?.addEventListener('click', () => selectUser('user2'));
+    document.getElementById('select-user3')?.addEventListener('click', () => selectUser('user3'));
+    document.getElementById('pin-submit')?.addEventListener('click', verifyPin);
+    document.getElementById('pin-cancel')?.addEventListener('click', cancelPinModal);
+    document.getElementById('view-other-btn')?.addEventListener('click', viewOtherUser);
+    document.getElementById('back-to-self-btn')?.addEventListener('click', switchBackToSelf);
+    document.getElementById('switch-user-btn')?.addEventListener('click', switchUser);
+    
+    document.getElementById('prev-month')?.addEventListener('click', () => {
+        currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+        renderCalendar(viewingOtherUser);
+    });
+    document.getElementById('next-month')?.addEventListener('click', () => {
+        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+        renderCalendar(viewingOtherUser);
+    });
+    
+    document.getElementById('pin-modal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('pin-modal')) cancelPinModal();
+    });
+    
+    document.addEventListener('keydown', (e) => {
+        if (document.getElementById('pin-modal')?.style.display === 'flex' && e.key === 'Enter') {
+            verifyPin();
+        }
+    });
+});
